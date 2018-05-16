@@ -6,6 +6,7 @@
     ground:number
 
     player:Player
+    bin:Bin
     // ememies:Enemy[] // hier ga je *vijanden* enemyStuff in zetten
 
     constructor(){
@@ -17,6 +18,7 @@
         this.ground = 720
 
         this.player = new Player(this.ground)
+        this.bin = new Bin()
 
         // Start looping stuff
         requestAnimationFrame(this.gameLoop);
@@ -25,6 +27,7 @@
     gameLoop = ():void => {
         // Update stuff
         this.player.update()
+        this.bin.update()
           
         // Draw stuff
         if (this.ctx != null) {
