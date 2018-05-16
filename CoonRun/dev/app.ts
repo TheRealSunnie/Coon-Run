@@ -14,7 +14,7 @@
         this.canvas = <HTMLCanvasElement>document.getElementById('cnvs');
         this.ctx = this.canvas.getContext("2d");
 
-        this.ground = 620
+        this.ground = 720
 
         this.player = new Player(this.ground)
 

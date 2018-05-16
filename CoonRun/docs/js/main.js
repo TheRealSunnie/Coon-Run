@@ -18,7 +18,7 @@ var Game = (function () {
         console.log("new game created!");
         this.canvas = document.getElementById('cnvs');
         this.ctx = this.canvas.getContext("2d");
-        this.ground = 620;
+        this.ground = 720;
         this.player = new Player(this.ground);
         requestAnimationFrame(this.gameLoop);
     }
@@ -30,39 +30,69 @@ var Player = (function () {
         var _this = this;
         console.log("i am a player!");
         this.x = 15;
-        this.y = y;
+        this.y = y - 100;
         this.ground = y;
         this.jumping = false;
-        this.jumpSpeed = 8;
-        this.jumpHeight = 150;
-        this.gravity = 6;
-        window.addEventListener("click", function () { return _this.jump(); });
+        this.vSpeed = 0;
+        this.jumpSpeed = 50;
+        this.acceleration = 15;
+        this.gravity = -20;
+        this.jumpHeight = 300;
+        this.grounded = true;
+        this.mPressed = false;
+        this.mReleased = false;
+        window.addEventListener("mousedown", function () { return _this.pressed(); });
+        window.addEventListener("mouseup", function () { return _this.released(); });
     }
     Player.prototype.update = function () {
         console.log("updating the player");
-        if (this.y < this.ground - this.jumpHeight)
+        if (this.grounded) {
+            if (this.mPressed)
+                this.jumping = true;
+            else
+                this.jumping = false;
+        }
+        if (this.y < this.ground - this.jumpHeight) {
             this.jumping = false;
-        if (this.jumping)
-            this.y -= this.jumpSpeed;
-        else
-            this.y += this.gravity;
-        if (this.y > this.ground)
-            this.y = this.ground;
+        }
+        if (this.jumping) {
+            if (this.vSpeed == 0)
+                this.vSpeed += this.acceleration;
+            if (this.vSpeed > this.jumpSpeed)
+                this.vSpeed = this.jumpSpeed;
+        }
+        if (!this.jumping) {
+            if (this.vSpeed > this.gravity)
+                this.vSpeed -= 2;
+            else
+                this.vSpeed = this.gravity;
+        }
+        this.y -= this.vSpeed;
+        if (this.y > this.ground - 100) {
+            this.y = this.ground - 100;
+            this.vSpeed = 0;
+            this.grounded = true;
+        }
     };
-    Player.prototype.jump = function () {
-        console.log("jump!");
-        if (this.y > this.ground - 100)
-            this.jumping = true;
+    Player.prototype.pressed = function () {
+        console.log("pressed");
+        this.mPressed = true;
+        this.mReleased = false;
+    };
+    Player.prototype.released = function () {
+        console.log("release");
+        this.mPressed = false;
+        this.mReleased = true;
     };
     return Player;
 }());
 var Test = (function () {
     function Test() {
         this.mijnvalue = true;
-        this.doSomething();
+        this.update();
         console.log("ik ben een test");
     }
-    Test.prototype.doSomething = function () {
+    Test.prototype.update = function () {
         console.log("doe iets");
     };
     return Test;
