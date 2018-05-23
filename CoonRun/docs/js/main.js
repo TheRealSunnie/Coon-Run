@@ -1,4 +1,28 @@
 "use strict";
+var Pickup = (function () {
+    function Pickup(ground, canvasWidth, hspeed) {
+        console.log("hier komt een prullebakkie");
+        this.width = 50;
+        this.height = 50;
+        this.canvasWidth = canvasWidth;
+        this.x = canvasWidth;
+        this.y = ground - this.height;
+        this.hspeed = hspeed;
+        this.active = false;
+    }
+    Pickup.prototype.update = function () {
+        if (!this.active) {
+            this.x = this.canvasWidth;
+        }
+        else {
+            this.x -= this.hspeed;
+        }
+        if (this.x < 0 - this.width) {
+            this.active = false;
+        }
+    };
+    return Pickup;
+}());
 var Game = (function () {
     function Game() {
         var _this = this;
@@ -20,9 +44,13 @@ var Game = (function () {
             for (var i = 0; i < _this.maxBins; i++) {
                 if (Math.random() < chance && _this.canSpawn) {
                     _this.bins[i].active = true;
-                    _this.bins[i].width = Math.random() * 90 + 10;
+                    if (Math.random() > .5) {
+                        _this.bins[i].type = _this.bins[i].single;
+                    }
+                    else {
+                        _this.bins[i].type = _this.bins[i].double;
+                    }
                     _this.bins[i].x = _this.canvasWidth;
-                    _this.bins[i].height = Math.random() * 100 + 50;
                     _this.bins[i].y = _this.ground - _this.bins[i].height;
                     _this.canSpawn = false;
                 }
@@ -36,26 +64,25 @@ var Game = (function () {
                 }
                 _this.bins[i].update();
             }
-            if (_this.ctx != null) {
-                _this.ctx.fillStyle = "#D3D3D3";
-                _this.ctx.fillRect(0, 0, 1280, 720);
-                _this.ctx.beginPath();
-                _this.ctx.fillStyle = "black";
-                if (_this.dead)
-                    _this.ctx.fillStyle = "red";
-                _this.ctx.lineWidth = 5;
-                _this.ctx.fillRect(_this.player.x, _this.player.y, _this.player.width, _this.player.height);
-                for (var i = 0; i < _this.maxBins; i++) {
-                    _this.ctx.fillRect(_this.bins[i].x, _this.bins[i].y, _this.bins[i].width, _this.bins[i].height);
-                }
-                _this.ctx.stroke();
+            console.log(_this.spawnCD, _this.canSpawn);
+            _this.ctx.fillStyle = "#D3D3D3";
+            _this.ctx.fillRect(0, 0, 1280, 720);
+            _this.ctx.beginPath();
+            _this.ctx.fillStyle = "black";
+            if (_this.dead)
+                _this.ctx.fillStyle = "red";
+            _this.ctx.lineWidth = 5;
+            _this.ctx.fillRect(_this.player.x, _this.player.y, _this.player.width, _this.player.height);
+            for (var i = 0; i < _this.maxBins; i++) {
+                _this.ctx.fillRect(_this.bins[i].x, _this.bins[i].y, _this.bins[i].width, _this.bins[i].height);
             }
+            _this.ctx.stroke();
             requestAnimationFrame(_this.gameLoop);
         };
         console.log("new game created!");
         this.ground = 720;
         this.dead = false;
-        this.objSpeed = 12;
+        this.objSpeed = 10;
         this.canSpawn = false;
         this.spawnCD = 100;
         this.player = new Player(this.ground);
@@ -78,6 +105,9 @@ var Game = (function () {
 window.addEventListener("load", function () { return new Game(); });
 var Bin = (function () {
     function Bin(ground, canvasWidth, hspeed) {
+        this.single = 0;
+        this.double = 1;
+        this.type = this.single;
         console.log("hier komt een prullebakkie");
         this.width = 50;
         this.height = 50;
@@ -88,6 +118,14 @@ var Bin = (function () {
         this.active = false;
     }
     Bin.prototype.update = function () {
+        switch (this.type) {
+            case this.single:
+                this.width = 75;
+                break;
+            case this.double:
+                this.width = 150;
+                break;
+        }
         if (!this.active) {
             this.x = this.canvasWidth;
         }

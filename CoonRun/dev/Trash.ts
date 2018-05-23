@@ -1,4 +1,4 @@
-class Bin {
+class Trash {
 
     public width:number
     public height:number
@@ -7,10 +7,6 @@ class Bin {
     private canvasWidth:number
     public hspeed:number
     public active:boolean
-    
-    public single = 0
-    public double = 1
-    public type = this.single
 
     constructor(ground:number, canvasWidth:number, hspeed:number) {
         console.log("hier komt een prullebakkie")
@@ -24,16 +20,6 @@ class Bin {
     }
 
     update():void {
-        switch (this.type) {
-            case this.single:
-                this.width = 75
-                break;
-
-            case this.double:
-                this.width = 150
-                break;
-        }
-
         if (!this.active) {
             this.x = this.canvasWidth
         } else {

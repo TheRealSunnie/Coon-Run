@@ -1,7 +1,7 @@
  class Game {
     // Declare all the stuff
     private canvas:HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('cnvs')
-    private ctx:CanvasRenderingContext2D|null = this.canvas.getContext("2d")
+    private ctx:CanvasRenderingContext2D = this.canvas.getContext("2d")!
     private canvasWidth:number = 1280
 
     private ground:number
@@ -10,9 +10,7 @@
     //private bin:Bin
     private bins:Array<Bin> = [];
     private maxBins:number = 5
-    // ememies:Enemy[] // hier ga je *vijanden* enemyStuff in zetten
 
-    //private collisionCheck:Boolean
     private dead:boolean
     private objSpeed:number
     private canSpawn:boolean
@@ -23,18 +21,15 @@
         console.log("new game created!")
         this.ground = 720
         this.dead = false
-        this.objSpeed = 12
+        this.objSpeed = 10
         this.canSpawn = false
         this.spawnCD = 100
 
         this.player = new Player(this.ground)
-        //this.bin = new Bin(this.ground, this.canvasWidth)
         for(let i=0; i<this.maxBins; i++) {
             this.bins.push(new Bin(this.ground, this.canvasWidth, this.objSpeed));
             console.log("Bin created")
         }
-
-        //this.collisionCheck = false
         // Start looping stuff
         requestAnimationFrame(this.gameLoop);
     }
@@ -42,7 +37,6 @@
     gameLoop = ():void => {
         // Update stuff
         this.player.update()
-        //this.bin.update()
         let chance = 0.002
 
         if (this.spawnCD > 0 && !this.canSpawn) {
@@ -54,9 +48,14 @@
         for(let i=0; i<this.maxBins; i++) {
             if (Math.random() < chance && this.canSpawn) {
                 this.bins[i].active = true
-                this.bins[i].width = Math.random()*90+10
+                if (Math.random()>.5) {
+                this.bins[i].type = this.bins[i].single
+            } else {
+                this.bins[i].type = this.bins[i].double
+            }
+                //this.bins[i].width = Math.random()*90+10
                 this.bins[i].x = this.canvasWidth
-                this.bins[i].height = Math.random()*100+50
+                //this.bins[i].height = Math.random()*100+50
                 this.bins[i].y = this.ground-this.bins[i].height
                 this.canSpawn = false
             }
@@ -67,43 +66,24 @@
             }
             this.bins[i].update()
         }
-        // Check for rectangle collision
-        /*if (this.bin.x > this.player.x-this.bin.width && this.bin.x < this.player.x+this.player.width && this.bin.y > this.player.y-this.bin.height && this.bin.y < this.player.y+this.player.height) {
-            this.collisionCheck = true;
-        } else {
-            this.collisionCheck = false;
-        }
-        
-        console.log(this.collisionCheck)
-        if (this.collisionCheck) {
-            this.bin.x = 1280
-        } */
-
-        /*if (this.collision(this.bin)) {
-            this.bin.x = 1280
-            if (!this.dead) this.dead = true; else this.dead = false
-            console.log("collision detected")
-        }*/
-          
+        console.log(this.spawnCD, this.canSpawn)
         // Draw stuff
-        if (this.ctx != null) {
-            this.ctx.fillStyle = "#D3D3D3"
-            this.ctx.fillRect(0, 0, 1280, 720)
-            this.ctx.beginPath()
-            this.ctx.fillStyle = "black"
-            if (this.dead) this.ctx.fillStyle = "red"
-            this.ctx.lineWidth = 5
-            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height)
-            for(let i=0; i<this.maxBins; i++) {
-                this.ctx.fillRect(this.bins[i].x, this.bins[i].y, this.bins[i].width, this.bins[i].height)
-            }
-            this.ctx.stroke()
+        this.ctx.fillStyle = "#D3D3D3"
+        this.ctx.fillRect(0, 0, 1280, 720)
+        this.ctx.beginPath()
+        this.ctx.fillStyle = "black"
+        if (this.dead) this.ctx.fillStyle = "red"
+        this.ctx.lineWidth = 5
+        this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height)
+        for(let i=0; i<this.maxBins; i++) {
+            this.ctx.fillRect(this.bins[i].x, this.bins[i].y, this.bins[i].width, this.bins[i].height)
         }
+        this.ctx.stroke()
         // Next *frame* stuff
         requestAnimationFrame(this.gameLoop)
      }
 
-     collision(object:object):boolean {
+     collision(object:Bin | Trash):boolean {
         if (object.x > this.player.x-object.width && object.x < this.player.x+this.player.width && object.y > this.player.y-object.height && object.y < this.player.y+this.player.height) {
             return true;
         } else {
@@ -114,4 +94,3 @@
 
 // Make sure stuff actually happens on load
 window.addEventListener("load", () => new Game())
-
