@@ -21,8 +21,8 @@ class Player {
         this.width = 100
         this.height = 100
         this.x = 15
-        this.y = ground-1-this.height
-        this.ground = ground-1
+        this.y = ground-this.height
+        this.ground = ground
         this.jumping = false
         this.vSpeed = 0
         this.jumpSpeed = 20
@@ -66,13 +66,11 @@ class Player {
             this.vSpeed -= this.acceleration
             if (this.vSpeed < this.gravity) this.vSpeed = this.gravity
         }
-        
         // Move
         this.y -= this.vSpeed
         // Hit ground
         if (this.y > this.ground-this.height) {
             this.y = this.ground-this.height
-            //this.grounded = true
         }
         //console.log(this.vSpeed)
     }
