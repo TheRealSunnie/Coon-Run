@@ -1,21 +1,24 @@
 class Bin {
 
-    public x: number
-    public y: number
-    public vspeed: number
     public width: number
     public height: number
+    public x: number
+    public y: number
+    public hspeed: number
 
-    constructor() {
+    constructor(ground:number) {
         console.log("hier komt een prullebakkie")
-        this.x = 110
-        this.y = 600
-        this.width = 100
-        this.height = 100
-        this.vspeed = 0
+        this.width = 50
+        this.height = 50
+        this.x = 1280
+        this.y = ground-this.height
+        this.hspeed = 12
     }
 
     update():void {
-        console.log("bin")
+        this.x -= this.hspeed
+        if (this.x < 0-this.width) {
+            this.x = 1280
+        }
     }
 }

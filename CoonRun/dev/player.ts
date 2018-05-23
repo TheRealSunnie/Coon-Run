@@ -1,34 +1,36 @@
 class Player {
 
-    public x:number
-    public y:number
     public width:number
     public height:number
+    public x:number
+    public y:number
     public ground:number
     public jumping:boolean
     public vSpeed:number
     public jumpSpeed:number
     public acceleration:number
     public gravity:number
-    public jumpHeight:number
-    public grounded:boolean
-    public mPressed:boolean
-    public mReleased:boolean
+    private jumpHeight:number
+    private minJumpHeight:number
+    private grounded:boolean
+    private mPressed:boolean
+    private mReleased:boolean
 
-    constructor(y:number) {
+    constructor(ground:number) {
         console.log("i am a player!")
-        this.x = 15
-        this.y = y-100
         this.width = 100
         this.height = 100
-        this.ground = y
+        this.x = 15
+        this.y = ground-1-this.height
+        this.ground = ground-1
         this.jumping = false
         this.vSpeed = 0
-        this.jumpSpeed = 50
-        this.acceleration = 15
-        this.gravity = -10
-        this.jumpHeight = 300
-        this.grounded = true;
+        this.jumpSpeed = 20
+        this.acceleration = 5
+        this.gravity = -20
+        this.jumpHeight = ground - 400
+        this.minJumpHeight = ground - 300
+        this.grounded = true
         this.mPressed = false
         this.mReleased = false
 
@@ -37,32 +39,40 @@ class Player {
     }
 
     update():void {
-        console.log("updating the player")
-        // Check if can jump
+        //console.log("updating the player")
+        // Check if grounded
+        if (this.y+this.height == this.ground) this.grounded = true
+        // Check if can jump and enable jump
         if (this.grounded) {
-            if (this.mPressed) this.jumping = true; else this.jumping = false
+            this.vSpeed = 0
+            if (this.mPressed) this.jumping = true
+        }
+        // Minimum jump
+        if (this.jumping && this.mReleased && this.y < this.minJumpHeight) {
+            this.jumping = false
         }
         // Break if player reaches max height
-        if (this.y < this.ground - this.jumpHeight) {
+        if (this.y < this.jumpHeight) {
             this.jumping = false
         }
         // Start jumping
         if (this.jumping) {
-            if (this.vSpeed == 0) this.vSpeed += this.acceleration
+            this.grounded = false
+            this.vSpeed += this.acceleration
             if (this.vSpeed > this.jumpSpeed) this.vSpeed = this.jumpSpeed
         }
         // Break and start landing
         if (!this.jumping) {
-            if (this.vSpeed > this.gravity) this.vSpeed-=5; else this.vSpeed = this.gravity
+            this.vSpeed -= this.acceleration
+            if (this.vSpeed < this.gravity) this.vSpeed = this.gravity
         }
         
         // Move
         this.y -= this.vSpeed
         // Hit ground
-        if (this.y > this.ground - 100) {
-            this.y = this.ground-100;
-            this.vSpeed = 0;
-            this.grounded = true
+        if (this.y > this.ground-this.height) {
+            this.y = this.ground-this.height
+            //this.grounded = true
         }
         //console.log(this.vSpeed)
     }
