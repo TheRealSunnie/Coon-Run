@@ -1,6 +1,6 @@
 "use strict";
-var Pickup = (function () {
-    function Pickup(ground, canvasWidth, hspeed) {
+var Trash = (function () {
+    function Trash(ground, canvasWidth, hspeed) {
         console.log("hier komt een prullebakkie");
         this.width = 50;
         this.height = 50;
@@ -10,7 +10,7 @@ var Pickup = (function () {
         this.hspeed = hspeed;
         this.active = false;
     }
-    Pickup.prototype.update = function () {
+    Trash.prototype.update = function () {
         if (!this.active) {
             this.x = this.canvasWidth;
         }
@@ -21,7 +21,7 @@ var Pickup = (function () {
             this.active = false;
         }
     };
-    return Pickup;
+    return Trash;
 }());
 var Game = (function () {
     function Game() {
@@ -31,6 +31,11 @@ var Game = (function () {
         this.canvasWidth = 1280;
         this.bins = [];
         this.maxBins = 5;
+        this.ground = 720;
+        this.dead = false;
+        this.objSpeed = 10;
+        this.canSpawn = false;
+        this.spawnCD = 100;
         this.gameLoop = function () {
             _this.player.update();
             var chance = 0.002;
@@ -43,15 +48,16 @@ var Game = (function () {
             }
             for (var i = 0; i < _this.maxBins; i++) {
                 if (Math.random() < chance && _this.canSpawn) {
-                    _this.bins[i].active = true;
                     if (Math.random() > .5) {
                         _this.bins[i].type = _this.bins[i].single;
                     }
                     else {
                         _this.bins[i].type = _this.bins[i].double;
                     }
+                    _this.bins[i].update();
                     _this.bins[i].x = _this.canvasWidth;
                     _this.bins[i].y = _this.ground - _this.bins[i].height;
+                    _this.bins[i].active = true;
                     _this.canSpawn = false;
                 }
                 if (_this.collision(_this.bins[i])) {
@@ -64,14 +70,11 @@ var Game = (function () {
                 }
                 _this.bins[i].update();
             }
-            console.log(_this.spawnCD, _this.canSpawn);
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.fillRect(0, 0, 1280, 720);
-            _this.ctx.beginPath();
             _this.ctx.fillStyle = "black";
             if (_this.dead)
                 _this.ctx.fillStyle = "red";
-            _this.ctx.lineWidth = 5;
             _this.ctx.fillRect(_this.player.x, _this.player.y, _this.player.width, _this.player.height);
             for (var i = 0; i < _this.maxBins; i++) {
                 _this.ctx.fillRect(_this.bins[i].x, _this.bins[i].y, _this.bins[i].width, _this.bins[i].height);
@@ -79,16 +82,9 @@ var Game = (function () {
             _this.ctx.stroke();
             requestAnimationFrame(_this.gameLoop);
         };
-        console.log("new game created!");
-        this.ground = 720;
-        this.dead = false;
-        this.objSpeed = 10;
-        this.canSpawn = false;
-        this.spawnCD = 100;
         this.player = new Player(this.ground);
         for (var i = 0; i < this.maxBins; i++) {
             this.bins.push(new Bin(this.ground, this.canvasWidth, this.objSpeed));
-            console.log("Bin created");
         }
         requestAnimationFrame(this.gameLoop);
     }
@@ -105,17 +101,16 @@ var Game = (function () {
 window.addEventListener("load", function () { return new Game(); });
 var Bin = (function () {
     function Bin(ground, canvasWidth, hspeed) {
+        this.width = 50;
+        this.height = 50;
+        this.active = false;
         this.single = 0;
         this.double = 1;
         this.type = this.single;
-        console.log("hier komt een prullebakkie");
-        this.width = 50;
-        this.height = 50;
         this.canvasWidth = canvasWidth;
         this.x = canvasWidth;
         this.y = ground - this.height;
         this.hspeed = hspeed;
-        this.active = false;
     }
     Bin.prototype.update = function () {
         switch (this.type) {
@@ -141,22 +136,25 @@ var Bin = (function () {
 var Player = (function () {
     function Player(ground) {
         var _this = this;
-        console.log("i am a player!");
         this.width = 100;
         this.height = 100;
         this.x = 15;
+        this.jumping = false;
+        this.vSpeed = 0;
+        this.jumpSpeed = 20;
+        this.acceleration = 5;
+        this.gravity = -20;
+        this.grounded = true;
+        this.mPressed = false;
+        this.mReleased = false;
         this.y = ground - this.height;
         this.ground = ground;
-        this.jumping = false;
         this.vSpeed = 0;
         this.jumpSpeed = 20;
         this.acceleration = 5;
         this.gravity = -20;
         this.jumpHeight = ground - 400;
         this.minJumpHeight = ground - 300;
-        this.grounded = true;
-        this.mPressed = false;
-        this.mReleased = false;
         window.addEventListener("mousedown", function () { return _this.pressed(); });
         window.addEventListener("mouseup", function () { return _this.released(); });
     }
