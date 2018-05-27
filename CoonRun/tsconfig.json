@@ -3,13 +3,12 @@
     "compilerOptions": {
         "strict": true,
         "target": "es5",
-        "removeComments": true,
+        "removeComments": false,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "sourceMap": true,
-        "outFile": "docs/js/main.js"
+        "sourceMap": false,
+        "outFile": "docs/js/main.js",
+
     },
-    "include": [
-        "dev/**/*"
-    ]
+
 }

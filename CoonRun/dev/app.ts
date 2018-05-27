@@ -2,7 +2,6 @@
     private canvas:HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('cnvs')
     private ctx:CanvasRenderingContext2D = this.canvas.getContext("2d")!
     private canvasWidth:number = 1280
-
     private player:Player
     private bins:Array<Bin> = [];
 

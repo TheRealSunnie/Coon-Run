@@ -1,5 +1,4 @@
 class Player {
-
     public width:number = 100
     public height:number = 100
     public x:number = 15
@@ -15,6 +14,7 @@ class Player {
     private grounded:boolean = true
     private mPressed:boolean = false
     private mReleased:boolean = false
+    public sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('jump')
 
     constructor(ground:number) {
         //console.log("i am a player!")
@@ -71,6 +71,7 @@ class Player {
         console.log("pressed")
         this.mPressed = true
         this.mReleased = false
+        this.sound.play();
     }
 
     released():void {
