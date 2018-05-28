@@ -16,8 +16,10 @@ var Game = /** @class */ (function () {
         this.single = 0;
         this.double = 1;
         this.gameLoop = function () {
+            console.log(_this.objSpeed);
+            if (_this.lifes == -10)
+                _this.level.update(2);
             // Update stuff
-            //this.levels.update()
             _this.player.update();
             // Countdown for spawning
             if (_this.spawnCD > 0 && !_this.canSpawn) {
@@ -36,7 +38,7 @@ var Game = /** @class */ (function () {
                     binType = 1;
                 }
                 // New bin
-                _this.bins.push(new Bin(_this, _this.ground, _this.canvasWidth, _this.objSpeed, binType));
+                _this.bins.push(new Bin(_this, _this.ground, _this.canvasWidth, binType));
                 console.log("Bin created");
                 _this.canSpawn = false; // Restart the cooldown for spawning
             }
@@ -66,13 +68,13 @@ var Game = /** @class */ (function () {
                 _this.ctx.fillRect(_this.bins[i].x, _this.bins[i].y, _this.bins[i].width, _this.bins[i].height);
             }
             _this.ctx.font = "30px Arial";
-            _this.ctx.fillText(_this.lifes + " lifes", 50, 50, 100);
+            _this.ctx.fillText(_this.lifes + " lifes", 50, 450, 100);
             _this.ctx.stroke(); // This draws all of the above
             // Next frame
             requestAnimationFrame(_this.gameLoop);
         };
         //console.log("new game created!")
-        //this.levels = new Levels()
+        this.level = new Levels(this);
         this.player = new Player(this.ground);
         // Start looping stuff
         requestAnimationFrame(this.gameLoop);
@@ -90,7 +92,7 @@ var Game = /** @class */ (function () {
 // Makes sure stuff actually happens on load
 window.addEventListener("load", function () { return new Game(); });
 var Bin = /** @class */ (function () {
-    function Bin(game, ground, canvasWidth, hspeed, type) {
+    function Bin(game, ground, canvasWidth, type) {
         this.width = 50;
         this.height = 50;
         this.active = false;
@@ -98,7 +100,7 @@ var Bin = /** @class */ (function () {
         this.gameObject = game;
         this.x = canvasWidth;
         this.y = ground - this.height;
-        this.hspeed = hspeed;
+        this.hspeed = this.gameObject.objSpeed;
         this.type = type;
         switch (this.type) {
             case this.gameObject.single:
@@ -128,19 +130,23 @@ var Bin = /** @class */ (function () {
     return Bin;
 }());
 var Levels = /** @class */ (function () {
-    function Levels() {
+    function Levels(game) {
+        this.game = game;
         this.update(1);
     }
     Levels.prototype.update = function (level) {
         switch (level) {
             case 1:
-                this.objectSpeed = 8;
+                this.game.objSpeed = 8;
                 break;
             case 2:
-                this.objectSpeed = 12;
+                this.game.objSpeed = 12;
+                for (var i = 0; i < this.game.bins.length; i++) {
+                    this.game.bins[i].hspeed = this.game.objSpeed;
+                }
                 break;
             default:
-                this.objectSpeed = 0;
+                this.game.objSpeed = 0;
         }
     };
     return Levels;

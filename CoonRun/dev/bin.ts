@@ -10,11 +10,11 @@ class Bin {
     public type:number
     public alive:boolean = true
 
-    constructor (game:Game, ground:number, canvasWidth:number, hspeed:number, type:number) { // Get game, ground height, canvas width, moving speed and type
+    constructor (game:Game, ground:number, canvasWidth:number, type:number) { // Get game, ground height, canvas width, moving speed and type
         this.gameObject = game
         this.x = canvasWidth
         this.y = ground-this.height
-        this.hspeed = hspeed
+        this.hspeed = this.gameObject.objSpeed
         this.type = type
 
         switch (this.type) { // Bins can have different types/sizes/sprites..

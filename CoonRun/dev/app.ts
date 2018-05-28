@@ -2,14 +2,14 @@
     private canvas:HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('cnvs')
     private ctx:CanvasRenderingContext2D = this.canvas.getContext("2d")!
     private canvasWidth:number = 1280
-    //public levels: Levels
+    public level: Levels
     private player:Player
-    private bins:Array<Bin> = [];
+    public bins:Array<Bin> = [];
     public spawnChance = 0.05 // Chance of bin spawning
     private ground:number = 720
     public lifes:number = 3 
     public dead:boolean = false
-    private objSpeed:number = 6
+    public objSpeed:number = 6
     private canSpawn:boolean = false
     private spawnCD:number = 60
     public single = 0
@@ -17,15 +17,16 @@
 
     constructor() { // Load in all the stuff
         //console.log("new game created!")
-        //this.levels = new Levels()
+        this.level = new Levels(this)
         this.player = new Player(this.ground)
         // Start looping stuff
         requestAnimationFrame(this.gameLoop);
     }
 
     gameLoop = ():void => {
+        console.log(this.objSpeed)
+        if (this.lifes == -10) this.level.update(2)
         // Update stuff
-        //this.levels.update()
         this.player.update()
         // Countdown for spawning
         if (this.spawnCD > 0 && !this.canSpawn) {
@@ -43,7 +44,7 @@
                 binType = 1
             }
             // New bin
-            this.bins.push(new Bin(this, this.ground, this.canvasWidth, this.objSpeed, binType))
+            this.bins.push(new Bin(this, this.ground, this.canvasWidth, binType))
             console.log("Bin created")
             this.canSpawn = false // Restart the cooldown for spawning
         }
@@ -72,7 +73,7 @@
             this.ctx.fillRect(this.bins[i].x, this.bins[i].y, this.bins[i].width, this.bins[i].height)
         }
         this.ctx.font = "30px Arial"
-        this.ctx.fillText(this.lifes + " lifes", 50, 50,100)
+        this.ctx.fillText(this.lifes + " lifes", 50, 450,100)
         this.ctx.stroke() // This draws all of the above
         // Next frame
         requestAnimationFrame(this.gameLoop)

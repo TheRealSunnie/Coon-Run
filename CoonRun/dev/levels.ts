@@ -1,22 +1,26 @@
 class Levels {
 
-    public objectSpeed:number
+    private game:Game
 
-    constructor () {
+    constructor (game:Game) {
+        this.game = game
         this.update(1)
     }
 
     update(level:number):void {
         switch (level) { // Bins can have different types/sizes/sprites..
             case 1:
-                this.objectSpeed = 8
+                this.game.objSpeed = 8
                 break;
 
             case 2:
-                this.objectSpeed = 12
+                this.game.objSpeed = 12
+                for(let i=0; i<this.game.bins.length; i++) {
+                    this.game.bins[i].hspeed = this.game.objSpeed
+                }
                 break;
             default:
-                this.objectSpeed = 0
+                this.game.objSpeed = 0
         }
     }
 
