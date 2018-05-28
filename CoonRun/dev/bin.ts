@@ -4,39 +4,44 @@ class Bin {
     public height:number = 50
     public x:number
     public y:number
-    private canvasWidth:number
     public hspeed:number
     public active:boolean = false
-    
-    public single = 0
-    public double = 1
-    public type = this.single
+    private gameObject:Game
+    public type:number
+    public alive:boolean = true
 
-    constructor(ground:number, canvasWidth:number, hspeed:number) { // Get ground height, canvas width and moving speed
-        this.canvasWidth = canvasWidth
+    constructor (game:Game, ground:number, canvasWidth:number, hspeed:number, type:number) { // Get game, ground height, canvas width, moving speed and type
+        this.gameObject = game
         this.x = canvasWidth
         this.y = ground-this.height
         this.hspeed = hspeed
-    }
+        this.type = type
 
-    update():void {
         switch (this.type) { // Bins can have different types/sizes/sprites..
-            case this.single:
+            case this.gameObject.single:
                 this.width = 75
                 break;
 
-            case this.double:
+            case this.gameObject.double:
                 this.width = 150
                 break;
         }
-        // If !active reset position to right side of the screen, else start moving <-
-        if (!this.active) {
-            this.x = this.canvasWidth
-        } else {
-            this.x -= this.hspeed
+    }
+
+    update():void {
+        // If there is a collision toggle the player state
+        if (this.gameObject.collision(this)) { 
+            this.alive = false
+            this.gameObject.lifes--
+            //if (!this.gameObject.dead) this.gameObject.dead = true; else this.gameObject.dead = false
+            //console.log("collision detected")
         }
-        if (this.x < 0-this.width) { // Deactivate when bin leaves left side of screen
-            this.active = false
+        // Deactivate when bin leaves left side of screen
+        if (this.x < 0-this.width) { 
+            // Delete bin
+            this.alive = false
         }
+        // Move
+        this.x -= this.hspeed
     }
 }

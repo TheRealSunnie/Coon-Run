@@ -6,49 +6,53 @@ var Game = /** @class */ (function () {
         this.ctx = this.canvas.getContext("2d");
         this.canvasWidth = 1280;
         this.bins = [];
-        this.maxBins = 5;
+        this.spawnChance = 0.05; // Chance of bin spawning
         this.ground = 720;
+        this.lifes = 3;
         this.dead = false;
-        this.objSpeed = 10;
+        this.objSpeed = 6;
         this.canSpawn = false;
-        this.spawnCD = 100;
+        this.spawnCD = 60;
+        this.single = 0;
+        this.double = 1;
         this.gameLoop = function () {
             // Update stuff
+            //this.levels.update()
             _this.player.update();
-            // Make bins appear randomly (temp solution)
-            var chance = 0.002; // Chance of spawning
             // Countdown for spawning
             if (_this.spawnCD > 0 && !_this.canSpawn) {
                 _this.spawnCD--;
             }
             else {
-                _this.spawnCD = 120;
+                _this.spawnCD = 50;
                 _this.canSpawn = true; // Bin may spawn when spawnCD hits 0
             }
-            for (var i = 0; i < _this.maxBins; i++) {
-                if (Math.random() < chance && _this.canSpawn) {
-                    if (Math.random() > .5) {
-                        _this.bins[i].type = _this.bins[i].single;
-                    }
-                    else {
-                        _this.bins[i].type = _this.bins[i].double;
-                    }
-                    _this.bins[i].update(); // Apply bin type without moving
-                    // Reset x/y positions after resizing
-                    _this.bins[i].x = _this.canvasWidth;
-                    _this.bins[i].y = _this.ground - _this.bins[i].height;
-                    _this.bins[i].active = true; // Activate a bin to move
-                    _this.canSpawn = false; // Restart the cooldown for spawning
+            if (Math.random() < _this.spawnChance && _this.canSpawn) {
+                var binType = void 0;
+                if (Math.random() > .5) {
+                    binType = 0;
                 }
-                if (_this.collision(_this.bins[i])) {
-                    _this.bins[i].active = false;
-                    if (!_this.dead)
-                        _this.dead = true;
-                    else
-                        _this.dead = false;
-                    console.log("collision detected");
+                else {
+                    binType = 1;
                 }
-                _this.bins[i].update(); // Moves the bins 
+                // New bin
+                _this.bins.push(new Bin(_this, _this.ground, _this.canvasWidth, _this.objSpeed, binType));
+                console.log("Bin created");
+                _this.canSpawn = false; // Restart the cooldown for spawning
+            }
+            var deleteBin = []; // Temp holder for removed bins
+            for (var i = 0; i < _this.bins.length; i++) {
+                _this.bins[i].update(); // Moves the bins
+                if (!_this.bins[i].alive) {
+                    deleteBin.push(i); // Move object to the temp holder
+                }
+            }
+            for (var i in deleteBin) {
+                _this.bins.splice(parseInt(i), 1); // Empty the temp holder
+            }
+            if (_this.lifes < 1 && !_this.dead) {
+                _this.dead = true;
+                console.log("game over");
             }
             // Draw stuff
             _this.ctx.fillStyle = "#D3D3D3"; // Color
@@ -58,21 +62,18 @@ var Game = /** @class */ (function () {
                 _this.ctx.fillStyle = "red";
             // Use fillRect to draw blocks
             _this.ctx.fillRect(_this.player.x, _this.player.y, _this.player.width, _this.player.height);
-            for (var i = 0; i < _this.maxBins; i++) {
+            for (var i = 0; i < _this.bins.length; i++) {
                 _this.ctx.fillRect(_this.bins[i].x, _this.bins[i].y, _this.bins[i].width, _this.bins[i].height);
             }
+            _this.ctx.font = "30px Arial";
+            _this.ctx.fillText(_this.lifes + " lifes", 50, 50, 100);
             _this.ctx.stroke(); // This draws all of the above
             // Next frame
             requestAnimationFrame(_this.gameLoop);
         };
         //console.log("new game created!")
-        // New player
+        //this.levels = new Levels()
         this.player = new Player(this.ground);
-        // New bins
-        for (var i = 0; i < this.maxBins; i++) {
-            this.bins.push(new Bin(this.ground, this.canvasWidth, this.objSpeed));
-            //console.log("Bin created")
-        }
         // Start looping stuff
         requestAnimationFrame(this.gameLoop);
     }
@@ -89,39 +90,60 @@ var Game = /** @class */ (function () {
 // Makes sure stuff actually happens on load
 window.addEventListener("load", function () { return new Game(); });
 var Bin = /** @class */ (function () {
-    function Bin(ground, canvasWidth, hspeed) {
+    function Bin(game, ground, canvasWidth, hspeed, type) {
         this.width = 50;
         this.height = 50;
         this.active = false;
-        this.single = 0;
-        this.double = 1;
-        this.type = this.single;
-        this.canvasWidth = canvasWidth;
+        this.alive = true;
+        this.gameObject = game;
         this.x = canvasWidth;
         this.y = ground - this.height;
         this.hspeed = hspeed;
-    }
-    Bin.prototype.update = function () {
+        this.type = type;
         switch (this.type) {
-            case this.single:
+            case this.gameObject.single:
                 this.width = 75;
                 break;
-            case this.double:
+            case this.gameObject.double:
                 this.width = 150;
                 break;
         }
-        // If !active reset position to right side of the screen, else start moving <-
-        if (!this.active) {
-            this.x = this.canvasWidth;
+    }
+    Bin.prototype.update = function () {
+        // If there is a collision toggle the player state
+        if (this.gameObject.collision(this)) {
+            this.alive = false;
+            this.gameObject.lifes--;
+            //if (!this.gameObject.dead) this.gameObject.dead = true; else this.gameObject.dead = false
+            //console.log("collision detected")
         }
-        else {
-            this.x -= this.hspeed;
-        }
+        // Deactivate when bin leaves left side of screen
         if (this.x < 0 - this.width) {
-            this.active = false;
+            // Delete bin
+            this.alive = false;
         }
+        // Move
+        this.x -= this.hspeed;
     };
     return Bin;
+}());
+var Levels = /** @class */ (function () {
+    function Levels() {
+        this.update(1);
+    }
+    Levels.prototype.update = function (level) {
+        switch (level) {
+            case 1:
+                this.objectSpeed = 8;
+                break;
+            case 2:
+                this.objectSpeed = 12;
+                break;
+            default:
+                this.objectSpeed = 0;
+        }
+    };
+    return Levels;
 }());
 var Player = /** @class */ (function () {
     function Player(ground) {
