@@ -24,7 +24,6 @@
     }
 
     gameLoop = ():void => {
-        console.log(this.objSpeed)
         if (this.lifes == -10) this.level.update(2)
         // Update stuff
         this.player.update()
@@ -45,7 +44,6 @@
             }
             // New bin
             this.bins.push(new Bin(this, this.ground, this.canvasWidth, binType))
-            console.log("Bin created")
             this.canSpawn = false // Restart the cooldown for spawning
         }
         let deleteBin = [] // Temp holder for removed bins
@@ -73,7 +71,7 @@
             this.ctx.fillRect(this.bins[i].x, this.bins[i].y, this.bins[i].width, this.bins[i].height)
         }
         this.ctx.font = "30px Arial"
-        this.ctx.fillText(this.lifes + " lifes", 50, 450,100)
+        this.ctx.fillText(this.lifes + " lifes", 150, 450,100)
         this.ctx.stroke() // This draws all of the above
         // Next frame
         requestAnimationFrame(this.gameLoop)

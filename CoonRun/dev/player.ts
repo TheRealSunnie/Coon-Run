@@ -1,14 +1,14 @@
 class Player {
     public width:number = 100
-    public height:number = 100
+    public height:number = 200
     public x:number = 15
     public y:number
     public ground:number
     public jumping:boolean = false
     public vSpeed:number = 0
-    public jumpSpeed:number = 20
-    public acceleration:number = 5
-    public gravity:number = -20
+    public jumpSpeed:number = 30
+    public acceleration:number = 3.5
+    public gravity:number = -30
     private jumpHeight:number
     private minJumpHeight:number
     private grounded:boolean = true
@@ -20,12 +20,8 @@ class Player {
         //console.log("i am a player!")
         this.y = ground-this.height
         this.ground = ground
-        this.vSpeed = 0
-        this.jumpSpeed = 20
-        this.acceleration = 5
-        this.gravity = -20
-        this.jumpHeight = ground - 400
-        this.minJumpHeight = ground - 300
+        this.jumpHeight = ground-this.height - 200
+        this.minJumpHeight = ground-this.height - 150
         // Checks for input
         window.addEventListener("mousedown", () => this.pressed())
         window.addEventListener("mouseup", () => this.released())
@@ -55,8 +51,8 @@ class Player {
             if (this.vSpeed > this.jumpSpeed) this.vSpeed = this.jumpSpeed
         }
         // Change the speed if player is not jumping
-        if (!this.jumping) {
-            this.vSpeed -= this.acceleration
+        if (!this.jumping && !this.grounded) {
+            if (this.vSpeed < 10 && this.vSpeed > -10) this.vSpeed -= this.acceleration/2; else this.vSpeed -= this.acceleration*1.5
             if (this.vSpeed < this.gravity) this.vSpeed = this.gravity
         }
         // Move the player based on its speed
@@ -65,6 +61,7 @@ class Player {
         if (this.y > this.ground-this.height) {
             this.y = this.ground-this.height
         }
+        console.log(this.vSpeed)
     }
     // Changes the input variables
     pressed():void {
