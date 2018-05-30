@@ -12,7 +12,7 @@ class Cloud {
     constructor (game:Game) {
         this.gameObject = game
         this.x = this.gameObject.canvasWidth
-        this.y = Math.floor(Math.random()*350) + 1
+        this.y = Math.floor(Math.random()*200) + 2
         this.hspeed = this.gameObject.objSpeed
         
     }
