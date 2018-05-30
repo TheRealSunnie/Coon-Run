@@ -100,6 +100,11 @@
         this.ctx.fillStyle = "#D3D3D3" // Color
         this.ctx.fillRect(0, 0, 1280, 720) // Clears canvas
 
+        this.ctx.fillStyle = "white"
+        for(let i=0; i<this.clouds.length; i++) {
+            this.ctx.fillRect(this.clouds[i].x, this.clouds[i].y, this.clouds[i].width, this.clouds[i].height)
+        }
+        
         this.ctx.fillStyle = "black"
         // Use fillRect to draw blocks
         this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height)
@@ -110,10 +115,7 @@
             if(this.levelObject.words[i].fake) this.ctx.fillStyle = "red"; else this.ctx.fillStyle = "green"
             this.ctx.fillRect(this.levelObject.words[i].x, this.levelObject.words[i].y, this.levelObject.words[i].width, this.levelObject.words[i].height)
         }
-        this.ctx.fillStyle = "white"
-        for(let i=0; i<this.clouds.length; i++) {
-            this.ctx.fillRect(this.clouds[i].x, this.clouds[i].y, this.clouds[i].width, this.clouds[i].height)
-        }
+
 
         this.ctx.fillStyle = "black"
         this.ctx.font = "30px Arial"

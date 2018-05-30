@@ -109,6 +109,10 @@ var Game = (function () {
             }
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.fillRect(0, 0, 1280, 720);
+            _this.ctx.fillStyle = "white";
+            for (var i = 0; i < _this.clouds.length; i++) {
+                _this.ctx.fillRect(_this.clouds[i].x, _this.clouds[i].y, _this.clouds[i].width, _this.clouds[i].height);
+            }
             _this.ctx.fillStyle = "black";
             _this.ctx.fillRect(_this.player.x, _this.player.y, _this.player.width, _this.player.height);
             for (var i = 0; i < _this.bins.length; i++) {
@@ -120,10 +124,6 @@ var Game = (function () {
                 else
                     _this.ctx.fillStyle = "green";
                 _this.ctx.fillRect(_this.levelObject.words[i].x, _this.levelObject.words[i].y, _this.levelObject.words[i].width, _this.levelObject.words[i].height);
-            }
-            _this.ctx.fillStyle = "white";
-            for (var i = 0; i < _this.clouds.length; i++) {
-                _this.ctx.fillRect(_this.clouds[i].x, _this.clouds[i].y, _this.clouds[i].width, _this.clouds[i].height);
             }
             _this.ctx.fillStyle = "black";
             _this.ctx.font = "30px Arial";
@@ -155,7 +155,7 @@ var Cloud = (function () {
         this.alive = true;
         this.gameObject = game;
         this.x = this.gameObject.canvasWidth;
-        this.y = 50;
+        this.y = Math.floor(Math.random() * 350) + 1;
         this.hspeed = this.gameObject.objSpeed;
     }
     Cloud.prototype.update = function () {
