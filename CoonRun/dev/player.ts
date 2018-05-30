@@ -3,6 +3,7 @@ class Player {
     public height:number = 200
     public x:number = 15
     public y:number
+    private gameObject:Game
     public ground:number
     public jumping:boolean = false
     public vSpeed:number = 0
@@ -16,12 +17,13 @@ class Player {
     private mReleased:boolean = false
     public sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('jump')
 
-    constructor(ground:number) {
+    constructor(game:Game) {
         //console.log("i am a player!")
-        this.y = ground-this.height
-        this.ground = ground
-        this.jumpHeight = ground-this.height - 200
-        this.minJumpHeight = ground-this.height - 150
+        this.gameObject = game
+        this.y = this.gameObject.ground-this.height
+        this.ground = this.gameObject.ground
+        this.jumpHeight = this.ground-this.height - 250
+        this.minJumpHeight = this.ground-this.height - 200
         // Checks for input
         window.addEventListener("mousedown", () => this.pressed())
         window.addEventListener("mouseup", () => this.released())
@@ -68,6 +70,20 @@ class Player {
         this.mPressed = true
         this.mReleased = false
         this.sound.play();
+        if(this.gameObject.dead) {
+            this.gameObject.dead = false
+            this.gameObject.lifes = 3
+            this.gameObject.currentLevel = 1
+            this.gameObject.levelObject.switch(this.gameObject.currentLevel)
+            this.gameObject.objSpeed = 10
+            this.gameObject.score = 0
+            this.gameObject.binSpawnCD = 100
+            this.gameObject.canSpawnBin = false
+            this.gameObject.cloudSpawnCD = 100
+            this.gameObject.canSpawnCloud = false
+            this.gameObject.levelObject.wordSpawnCD = 200
+            this.gameObject.levelObject.canSpawnWord = false
+        }
     }
 
     released():void {

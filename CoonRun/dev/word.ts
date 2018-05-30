@@ -20,10 +20,16 @@ class Word {
     }
 
     update():void {
-
+        this.hspeed = this.gameObject.objSpeed
         if (this.gameObject.collision(this)) { 
             this.alive = false
-            if(!this.fake) this.gameObject.level.switch(2)
+            if(!this.fake) { 
+                this.gameObject.currentLevel++
+                this.gameObject.levelObject.switch(this.gameObject.currentLevel)
+                this.gameObject.score++
+            } else {
+                this.gameObject.score--
+            }
         }
         if (this.x < 0-this.width) { 
             this.alive = false

@@ -29,28 +29,33 @@ var Game = (function () {
         this.canvas = document.getElementById('cnvs');
         this.ctx = this.canvas.getContext("2d");
         this.canvasWidth = 1280;
+        this.currentLevel = 1;
         this.bins = [];
-        this.binChance = 0.05;
+        this.binChance = 0.03;
         this.ground = 720;
         this.lifes = 3;
+        this.score = 0;
         this.dead = false;
-        this.objSpeed = 9;
+        this.objSpeed = 10;
         this.canSpawnBin = false;
         this.binSpawnCD = 60;
         this.single = 0;
         this.double = 1;
+        this.clouds = [];
+        this.cloudChance = 0.1;
+        this.cloudSpawnCD = 60;
+        this.canSpawnCloud = false;
         this.gameLoop = function () {
-            _this.level.update();
-            console.log(_this.objSpeed);
+            _this.levelObject.update();
             _this.player.update();
             if (_this.binSpawnCD > 0 && !_this.canSpawnBin) {
                 _this.binSpawnCD--;
             }
             else {
-                _this.binSpawnCD = 50;
+                _this.binSpawnCD = 70;
                 _this.canSpawnBin = true;
             }
-            if (Math.random() < _this.binChance && _this.canSpawnBin) {
+            if (Math.random() < _this.binChance && _this.canSpawnBin && !_this.dead) {
                 var binType = void 0;
                 if (Math.random() > .5) {
                     binType = 0;
@@ -71,9 +76,36 @@ var Game = (function () {
             for (var i in deleteBin) {
                 _this.bins.splice(parseInt(i), 1);
             }
+            if (_this.cloudSpawnCD > 0 && !_this.canSpawnCloud) {
+                _this.cloudSpawnCD--;
+            }
+            else {
+                _this.cloudSpawnCD = 50;
+                _this.canSpawnCloud = true;
+            }
+            if (Math.random() < _this.cloudChance && _this.canSpawnCloud) {
+                _this.clouds.push(new Cloud(_this));
+                _this.canSpawnCloud = false;
+            }
+            var deleteCloud = [];
+            for (var i = 0; i < _this.clouds.length; i++) {
+                _this.clouds[i].update();
+                if (!_this.clouds[i].alive) {
+                    deleteCloud.push(i);
+                }
+            }
+            for (var i in deleteCloud) {
+                _this.clouds.splice(parseInt(i), 1);
+            }
             if (_this.lifes < 1 && !_this.dead) {
                 _this.dead = true;
                 console.log("game over");
+            }
+            if (_this.dead) {
+                _this.levelObject.switch(0);
+            }
+            if (_this.score < 0) {
+                _this.score = 0;
             }
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.fillRect(0, 0, 1280, 720);
@@ -82,22 +114,27 @@ var Game = (function () {
             for (var i = 0; i < _this.bins.length; i++) {
                 _this.ctx.fillRect(_this.bins[i].x, _this.bins[i].y, _this.bins[i].width, _this.bins[i].height);
             }
-            for (var i = 0; i < _this.level.words.length; i++) {
-                if (_this.level.words[i].fake)
+            for (var i = 0; i < _this.levelObject.words.length; i++) {
+                if (_this.levelObject.words[i].fake)
                     _this.ctx.fillStyle = "red";
                 else
                     _this.ctx.fillStyle = "green";
-                _this.ctx.fillRect(_this.level.words[i].x, _this.level.words[i].y, _this.level.words[i].width, _this.level.words[i].height);
+                _this.ctx.fillRect(_this.levelObject.words[i].x, _this.levelObject.words[i].y, _this.levelObject.words[i].width, _this.levelObject.words[i].height);
+            }
+            _this.ctx.fillStyle = "white";
+            for (var i = 0; i < _this.clouds.length; i++) {
+                _this.ctx.fillRect(_this.clouds[i].x, _this.clouds[i].y, _this.clouds[i].width, _this.clouds[i].height);
             }
             _this.ctx.fillStyle = "black";
             _this.ctx.font = "30px Arial";
             _this.ctx.fillText(_this.lifes + " levens", 150, 450);
-            _this.ctx.fillText(_this.level.proverb, _this.canvasWidth / 2, 100);
+            _this.ctx.fillText("Score: " + _this.score, 50, 100);
+            _this.ctx.fillText(_this.levelObject.proverb, _this.canvasWidth / 2, 100);
             _this.ctx.stroke();
             requestAnimationFrame(_this.gameLoop);
         };
-        this.level = new Levels(this);
-        this.player = new Player(this.ground);
+        this.levelObject = new Levels(this);
+        this.player = new Player(this);
         requestAnimationFrame(this.gameLoop);
     }
     Game.prototype.collision = function (object) {
@@ -111,30 +148,50 @@ var Game = (function () {
     return Game;
 }());
 window.addEventListener("load", function () { return new Game(); });
+var Cloud = (function () {
+    function Cloud(game) {
+        this.width = 100;
+        this.height = 50;
+        this.alive = true;
+        this.gameObject = game;
+        this.x = this.gameObject.canvasWidth;
+        this.y = 50;
+        this.hspeed = this.gameObject.objSpeed;
+    }
+    Cloud.prototype.update = function () {
+        this.hspeed = this.gameObject.objSpeed;
+        if (this.x < 0 - this.width) {
+            this.alive = false;
+        }
+        this.x -= this.hspeed;
+    };
+    return Cloud;
+}());
 var Bin = (function () {
     function Bin(game, type) {
         this.width = 50;
         this.height = 50;
         this.alive = true;
         this.gameObject = game;
+        this.hspeed = this.gameObject.objSpeed;
         this.x = this.gameObject.canvasWidth;
         this.y = this.gameObject.ground - this.height;
-        this.hspeed = this.gameObject.objSpeed;
         this.type = type;
         switch (this.type) {
             case this.gameObject.single:
                 this.width = 75;
-                this.height = 50;
+                this.height = 100;
                 this.y = this.gameObject.ground - this.height;
                 break;
             case this.gameObject.double:
                 this.width = 100;
-                this.height = 100;
+                this.height = 120;
                 this.y = this.gameObject.ground - this.height;
                 break;
         }
     }
     Bin.prototype.update = function () {
+        this.hspeed = this.gameObject.objSpeed;
         if (this.gameObject.collision(this)) {
             this.alive = false;
             this.gameObject.lifes--;
@@ -153,14 +210,16 @@ var Levels = (function () {
         this.wordChance = 0.05;
         this.canSpawnWord = false;
         this.wordSpawnCD = 300;
-        this.game = game;
+        this.gameObject = game;
         this.proverb = "";
-        this.switch(1);
+        this.switch(this.gameObject.currentLevel);
     }
     Levels.prototype.update = function () {
-        this.game.objSpeed += 0.001;
-        if (this.game.objSpeed > this.maxSpeed)
-            this.game.objSpeed = this.maxSpeed;
+        if (this.gameObject.currentLevel > 4)
+            this.gameObject.currentLevel = 4;
+        this.gameObject.objSpeed += 0.001;
+        if (this.gameObject.objSpeed > this.maxSpeed)
+            this.gameObject.objSpeed = this.maxSpeed;
         if (this.wordSpawnCD > 0 && !this.canSpawnWord) {
             this.wordSpawnCD--;
         }
@@ -168,7 +227,7 @@ var Levels = (function () {
             this.wordSpawnCD = 300;
             this.canSpawnWord = true;
         }
-        if (Math.random() < this.wordChance && this.canSpawnWord) {
+        if (Math.random() < this.wordChance && this.canSpawnWord && !this.gameObject.dead) {
             var wordType = void 0;
             if (Math.random() > .5) {
                 wordType = true;
@@ -176,7 +235,7 @@ var Levels = (function () {
             else {
                 wordType = false;
             }
-            this.words.push(new Word(this.game, 0, wordType));
+            this.words.push(new Word(this.gameObject, 0, wordType));
             this.canSpawnWord = false;
         }
         var deleteWord = [];
@@ -192,25 +251,31 @@ var Levels = (function () {
     };
     Levels.prototype.switch = function (level) {
         switch (level) {
+            case 0:
+                this.maxSpeed = 0;
+                break;
             case 1:
                 this.proverb = "De ... valt niet ver van de boom";
-                this.maxSpeed = 11;
+                this.maxSpeed = 13;
                 break;
             case 2:
                 this.proverb = "De ... in de pot vinden";
-                this.maxSpeed = 13;
-                for (var i = 0; i < this.game.bins.length; i++) {
-                    this.game.bins[i].hspeed = this.game.objSpeed;
-                }
+                this.maxSpeed = 15;
                 break;
-            default:
-                this.maxSpeed = 0;
+            case 3:
+                this.proverb = "Zo sluw als een ...";
+                this.maxSpeed = 17;
+                break;
+            case 4:
+                this.proverb = "Als een ... in de val";
+                this.maxSpeed = 20;
+                break;
         }
     };
     return Levels;
 }());
 var Player = (function () {
-    function Player(ground) {
+    function Player(game) {
         var _this = this;
         this.width = 100;
         this.height = 200;
@@ -224,10 +289,11 @@ var Player = (function () {
         this.mPressed = false;
         this.mReleased = false;
         this.sound = document.getElementById('jump');
-        this.y = ground - this.height;
-        this.ground = ground;
-        this.jumpHeight = ground - this.height - 200;
-        this.minJumpHeight = ground - this.height - 150;
+        this.gameObject = game;
+        this.y = this.gameObject.ground - this.height;
+        this.ground = this.gameObject.ground;
+        this.jumpHeight = this.ground - this.height - 250;
+        this.minJumpHeight = this.ground - this.height - 200;
         window.addEventListener("mousedown", function () { return _this.pressed(); });
         window.addEventListener("mouseup", function () { return _this.released(); });
     }
@@ -269,6 +335,20 @@ var Player = (function () {
         this.mPressed = true;
         this.mReleased = false;
         this.sound.play();
+        if (this.gameObject.dead) {
+            this.gameObject.dead = false;
+            this.gameObject.lifes = 3;
+            this.gameObject.currentLevel = 1;
+            this.gameObject.levelObject.switch(this.gameObject.currentLevel);
+            this.gameObject.objSpeed = 10;
+            this.gameObject.score = 0;
+            this.gameObject.binSpawnCD = 100;
+            this.gameObject.canSpawnBin = false;
+            this.gameObject.cloudSpawnCD = 100;
+            this.gameObject.canSpawnCloud = false;
+            this.gameObject.levelObject.wordSpawnCD = 200;
+            this.gameObject.levelObject.canSpawnWord = false;
+        }
     };
     Player.prototype.released = function () {
         console.log("release");
@@ -302,10 +382,17 @@ var Word = (function () {
         this.fake = fake;
     }
     Word.prototype.update = function () {
+        this.hspeed = this.gameObject.objSpeed;
         if (this.gameObject.collision(this)) {
             this.alive = false;
-            if (!this.fake)
-                this.gameObject.level.switch(2);
+            if (!this.fake) {
+                this.gameObject.currentLevel++;
+                this.gameObject.levelObject.switch(this.gameObject.currentLevel);
+                this.gameObject.score++;
+            }
+            else {
+                this.gameObject.score--;
+            }
         }
         if (this.x < 0 - this.width) {
             this.alive = false;
