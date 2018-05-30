@@ -7,11 +7,15 @@
     private player:Player
     public bins:Array<Bin> = [];
     public binChance = 0.03 // Chance of bin spawning
+    public lifes:Array<Life> = [];
+    public lifeChance = 0.01
     public ground:number = 720
-    public lifes:number = 3 
+    public lifeCount:number = 3 
     public score:number = 0
     public dead:boolean = false
     public objSpeed:number = 10
+    public canSpawnLife:boolean = false
+    public lifeSpawnCD:number = 1000
     public canSpawnBin:boolean = false
     public binSpawnCD:number = 60
     public single = 0
@@ -82,11 +86,38 @@
                 deleteCloud.push(i)
             }
         }
+
         for (const i in deleteCloud) {
             this.clouds.splice(parseInt(i), 1)
         }
 
-        if (this.lifes < 1 && !this.dead) {
+        // Life
+        if(this.lifeSpawnCD > 0 && !this.canSpawnLife) {
+            this.lifeSpawnCD--
+        } else {
+            this.lifeSpawnCD = 1100
+            this.canSpawnLife = true
+        }
+
+        if (Math.random() < this.lifeChance && this.canSpawnLife) {
+            this.lifes.push (new Life(this))
+            this.canSpawnLife = false
+        }
+
+        let deleteLife = []
+        for(let i=0; i<this.lifes.length; i++) {
+            this.lifes[i].update()
+            if (!this.lifes[i].alive) {
+                deleteLife.push(i)
+            }
+        }
+
+
+        for (const i in deleteLife) {
+            this.lifes.splice(parseInt(i), 1)
+        }
+
+        if (this.lifeCount < 1 && !this.dead) {
             this.dead = true
             console.log("game over")
         }
@@ -116,10 +147,16 @@
             this.ctx.fillRect(this.levelObject.words[i].x, this.levelObject.words[i].y, this.levelObject.words[i].width, this.levelObject.words[i].height)
         }
 
+        for(let i=0; i<this.lifes.length; i++) {
+            this.ctx.fillStyle = "#00FFFF";
+            this.ctx.fillRect(this.lifes[i].x, this.lifes[i].y, this.lifes[i].width, this.lifes[i].height)
+        }
+        
+
 
         this.ctx.fillStyle = "black"
         this.ctx.font = "30px Arial"
-        this.ctx.fillText(this.lifes + " levens", 150, 450)
+        this.ctx.fillText(this.lifeCount + " levens", 150, 450)
         this.ctx.fillText("Score: " + this.score, 50, 100)
         this.ctx.fillText(this.levelObject.proverb, this.canvasWidth/2, 100)
         this.ctx.stroke() // This draws all of the above
@@ -127,7 +164,8 @@
         requestAnimationFrame(this.gameLoop)
      }
 
-    collision(object:Bin | Trash | Word):boolean { // Checks collision between the player and a given object
+
+    collision(object:Bin | Trash | Word | Life):boolean { // Checks collision between the player and a given object
         if (object.x > this.player.x-object.width && object.x < this.player.x+this.player.width && object.y > this.player.y-object.height && object.y < this.player.y+this.player.height) {
             return true;
         } else {

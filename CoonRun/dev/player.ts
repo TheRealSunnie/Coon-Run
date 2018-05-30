@@ -72,7 +72,7 @@ class Player {
         this.sound.play();
         if(this.gameObject.dead) {
             this.gameObject.dead = false
-            this.gameObject.lifes = 3
+            this.gameObject.lifeCount = 3
             this.gameObject.currentLevel = 1
             this.gameObject.levelObject.switch(this.gameObject.currentLevel)
             this.gameObject.objSpeed = 10
@@ -81,6 +81,8 @@ class Player {
             this.gameObject.canSpawnBin = false
             this.gameObject.cloudSpawnCD = 100
             this.gameObject.canSpawnCloud = false
+            this.gameObject.canSpawnLife = false
+            this.gameObject.lifeSpawnCD = 100
             this.gameObject.levelObject.wordSpawnCD = 200
             this.gameObject.levelObject.canSpawnWord = false
         }

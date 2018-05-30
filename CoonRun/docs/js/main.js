@@ -32,11 +32,15 @@ var Game = (function () {
         this.currentLevel = 1;
         this.bins = [];
         this.binChance = 0.03;
+        this.lifes = [];
+        this.lifeChance = 0.01;
         this.ground = 720;
-        this.lifes = 3;
+        this.lifeCount = 3;
         this.score = 0;
         this.dead = false;
         this.objSpeed = 10;
+        this.canSpawnLife = false;
+        this.lifeSpawnCD = 1000;
         this.canSpawnBin = false;
         this.binSpawnCD = 60;
         this.single = 0;
@@ -97,7 +101,28 @@ var Game = (function () {
             for (var i in deleteCloud) {
                 _this.clouds.splice(parseInt(i), 1);
             }
-            if (_this.lifes < 1 && !_this.dead) {
+            if (_this.lifeSpawnCD > 0 && !_this.canSpawnLife) {
+                _this.lifeSpawnCD--;
+            }
+            else {
+                _this.lifeSpawnCD = 1100;
+                _this.canSpawnLife = true;
+            }
+            if (Math.random() < _this.lifeChance && _this.canSpawnLife) {
+                _this.lifes.push(new Life(_this));
+                _this.canSpawnLife = false;
+            }
+            var deleteLife = [];
+            for (var i = 0; i < _this.lifes.length; i++) {
+                _this.lifes[i].update();
+                if (!_this.lifes[i].alive) {
+                    deleteLife.push(i);
+                }
+            }
+            for (var i in deleteLife) {
+                _this.lifes.splice(parseInt(i), 1);
+            }
+            if (_this.lifeCount < 1 && !_this.dead) {
                 _this.dead = true;
                 console.log("game over");
             }
@@ -125,9 +150,13 @@ var Game = (function () {
                     _this.ctx.fillStyle = "green";
                 _this.ctx.fillRect(_this.levelObject.words[i].x, _this.levelObject.words[i].y, _this.levelObject.words[i].width, _this.levelObject.words[i].height);
             }
+            for (var i = 0; i < _this.lifes.length; i++) {
+                _this.ctx.fillStyle = "#00FFFF";
+                _this.ctx.fillRect(_this.lifes[i].x, _this.lifes[i].y, _this.lifes[i].width, _this.lifes[i].height);
+            }
             _this.ctx.fillStyle = "black";
             _this.ctx.font = "30px Arial";
-            _this.ctx.fillText(_this.lifes + " levens", 150, 450);
+            _this.ctx.fillText(_this.lifeCount + " levens", 150, 450);
             _this.ctx.fillText("Score: " + _this.score, 50, 100);
             _this.ctx.fillText(_this.levelObject.proverb, _this.canvasWidth / 2, 100);
             _this.ctx.stroke();
@@ -194,7 +223,7 @@ var Bin = (function () {
         this.hspeed = this.gameObject.objSpeed;
         if (this.gameObject.collision(this)) {
             this.alive = false;
-            this.gameObject.lifes--;
+            this.gameObject.lifeCount--;
         }
         if (this.x < 0 - this.width) {
             this.alive = false;
@@ -274,6 +303,29 @@ var Levels = (function () {
     };
     return Levels;
 }());
+var Life = (function () {
+    function Life(game) {
+        this.width = 50;
+        this.height = 50;
+        this.alive = true;
+        this.gameObject = game;
+        this.hspeed = this.gameObject.objSpeed;
+        this.x = this.gameObject.canvasWidth;
+        this.y = 400;
+    }
+    Life.prototype.update = function () {
+        this.hspeed = this.gameObject.objSpeed;
+        if (this.gameObject.collision(this)) {
+            this.alive = false;
+            this.gameObject.lifeCount++;
+        }
+        if (this.x < 0 - this.width) {
+            this.alive = false;
+        }
+        this.x -= this.hspeed;
+    };
+    return Life;
+}());
 var Player = (function () {
     function Player(game) {
         var _this = this;
@@ -337,7 +389,7 @@ var Player = (function () {
         this.sound.play();
         if (this.gameObject.dead) {
             this.gameObject.dead = false;
-            this.gameObject.lifes = 3;
+            this.gameObject.lifeCount = 3;
             this.gameObject.currentLevel = 1;
             this.gameObject.levelObject.switch(this.gameObject.currentLevel);
             this.gameObject.objSpeed = 10;
@@ -346,6 +398,8 @@ var Player = (function () {
             this.gameObject.canSpawnBin = false;
             this.gameObject.cloudSpawnCD = 100;
             this.gameObject.canSpawnCloud = false;
+            this.gameObject.canSpawnLife = false;
+            this.gameObject.lifeSpawnCD = 100;
             this.gameObject.levelObject.wordSpawnCD = 200;
             this.gameObject.levelObject.canSpawnWord = false;
         }
