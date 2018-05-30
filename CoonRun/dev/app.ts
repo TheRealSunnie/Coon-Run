@@ -1,17 +1,17 @@
  class Game { // Declare all the stuff
     private canvas:HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('cnvs')
     private ctx:CanvasRenderingContext2D = this.canvas.getContext("2d")!
-    private canvasWidth:number = 1280
+    public canvasWidth:number = 1280
     public level: Levels
     private player:Player
     public bins:Array<Bin> = [];
-    public spawnChance = 0.05 // Chance of bin spawning
-    private ground:number = 720
+    public binChance = 0.05 // Chance of bin spawning
+    public ground:number = 720
     public lifes:number = 3 
     public dead:boolean = false
-    public objSpeed:number = 6
-    private canSpawn:boolean = false
-    private spawnCD:number = 60
+    public objSpeed:number = 9
+    private canSpawnBin:boolean = false
+    private binSpawnCD:number = 60
     public single = 0
     public double = 1
 
@@ -24,27 +24,28 @@
     }
 
     gameLoop = ():void => {
-        if (this.lifes == -10) this.level.update(2)
         // Update stuff
+        this.level.update()
+        console.log(this.objSpeed)
         this.player.update()
         // Countdown for spawning
-        if (this.spawnCD > 0 && !this.canSpawn) {
-            this.spawnCD--
+        if (this.binSpawnCD > 0 && !this.canSpawnBin) {
+            this.binSpawnCD--
         } else {
-            this.spawnCD = 50
-            this.canSpawn = true // Bin may spawn when spawnCD hits 0
+            this.binSpawnCD = 50
+            this.canSpawnBin = true // Bin may spawn when spawnCD hits 0
         }
         
-        if (Math.random() < this.spawnChance && this.canSpawn) {
-            let binType
+        if (Math.random() < this.binChance && this.canSpawnBin) {
+            let binType:number
             if (Math.random()>.5) { // Decide on bin type
                 binType = 0
             } else {
                 binType = 1
             }
             // New bin
-            this.bins.push(new Bin(this, this.ground, this.canvasWidth, binType))
-            this.canSpawn = false // Restart the cooldown for spawning
+            this.bins.push(new Bin(this, binType))
+            this.canSpawnBin = false // Restart the cooldown for spawning
         }
         let deleteBin = [] // Temp holder for removed bins
         for(let i=0; i<this.bins.length; i++) {
@@ -63,21 +64,28 @@
         // Draw stuff
         this.ctx.fillStyle = "#D3D3D3" // Color
         this.ctx.fillRect(0, 0, 1280, 720) // Clears canvas
+
         this.ctx.fillStyle = "black"
-        if (this.dead) this.ctx.fillStyle = "red"
         // Use fillRect to draw blocks
         this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height)
         for(let i=0; i<this.bins.length; i++) {
             this.ctx.fillRect(this.bins[i].x, this.bins[i].y, this.bins[i].width, this.bins[i].height)
         }
+        for(let i=0; i<this.level.words.length; i++) {
+            if(this.level.words[i].fake) this.ctx.fillStyle = "red"; else this.ctx.fillStyle = "green"
+            this.ctx.fillRect(this.level.words[i].x, this.level.words[i].y, this.level.words[i].width, this.level.words[i].height)
+        }
+
+        this.ctx.fillStyle = "black"
         this.ctx.font = "30px Arial"
-        this.ctx.fillText(this.lifes + " lifes", 150, 450,100)
+        this.ctx.fillText(this.lifes + " levens", 150, 450)
+        this.ctx.fillText(this.level.proverb, this.canvasWidth/2, 100)
         this.ctx.stroke() // This draws all of the above
         // Next frame
         requestAnimationFrame(this.gameLoop)
      }
 
-    collision(object:Bin | Trash):boolean { // Checks collision between the player and a given object
+    collision(object:Bin | Trash | Word):boolean { // Checks collision between the player and a given object
         if (object.x > this.player.x-object.width && object.x < this.player.x+this.player.width && object.y > this.player.y-object.height && object.y < this.player.y+this.player.height) {
             return true;
         } else {

@@ -61,7 +61,6 @@ class Player {
         if (this.y > this.ground-this.height) {
             this.y = this.ground-this.height
         }
-        console.log(this.vSpeed)
     }
     // Changes the input variables
     pressed():void {

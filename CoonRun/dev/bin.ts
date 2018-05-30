@@ -5,25 +5,28 @@ class Bin {
     public x:number
     public y:number
     public hspeed:number
-    public active:boolean = false
     private gameObject:Game
     public type:number
     public alive:boolean = true
 
-    constructor (game:Game, ground:number, canvasWidth:number, type:number) { // Get game, ground height, canvas width, moving speed and type
+    constructor (game:Game, type:number) { // Get game, ground height, canvas width, moving speed and type
         this.gameObject = game
-        this.x = canvasWidth
-        this.y = ground-this.height
+        this.x = this.gameObject.canvasWidth
+        this.y = this.gameObject.ground-this.height
         this.hspeed = this.gameObject.objSpeed
         this.type = type
 
         switch (this.type) { // Bins can have different types/sizes/sprites..
             case this.gameObject.single:
                 this.width = 75
+                this.height = 50
+                this.y = this.gameObject.ground-this.height
                 break;
 
             case this.gameObject.double:
-                this.width = 150
+                this.width = 100
+                this.height = 100
+                this.y = this.gameObject.ground-this.height
                 break;
         }
     }
