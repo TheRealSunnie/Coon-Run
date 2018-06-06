@@ -5,35 +5,39 @@ class Word {
     public x:number
     public y:number
     public hspeed:number
-    private gameObject:Game
+    private game:Game
     public name:number
     public fake:boolean = false
     public alive:boolean = true
 
     constructor (game:Game, name:number, fake:boolean) { 
-        this.gameObject = game
-        this.x = this.gameObject.canvasWidth
-        this.y = this.gameObject.ground-this.height - 250
-        this.hspeed = this.gameObject.objSpeed
+        this.game = game
+        this.x = this.game.canvasWidth
+        this.y = this.game.ground-this.height - 250
+        this.hspeed = this.game.objSpeed
         this.name = name
         this.fake = fake
     }
 
     update():void {
-        this.hspeed = this.gameObject.objSpeed
-        if (this.gameObject.collision(this)) { 
+        this.hspeed = this.game.objSpeed
+        if (this.game.collision(this)) { 
             this.alive = false
             if(!this.fake) { 
-                this.gameObject.currentLevel++
-                this.gameObject.levelObject.switch(this.gameObject.currentLevel)
-                this.gameObject.score++
+                this.game.currentLevel++
+                this.game.levelObject.switch(this.game.currentLevel)
+                this.game.score++
             } else {
-                this.gameObject.score--
+                this.game.score--
             }
         }
         if (this.x < 0-this.width) { 
             this.alive = false
         }
         this.x -= this.hspeed
+
+        // Draw
+        if (this.fake) this.game.ctx.fillStyle = "red"; else this.game.ctx.fillStyle = "green"
+        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }

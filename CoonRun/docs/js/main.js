@@ -30,10 +30,8 @@ var Game = (function () {
         this.ctx = this.canvas.getContext("2d");
         this.canvasWidth = 1280;
         this.currentLevel = 1;
-        this.bins = [];
-        this.binChance = 0.03;
         this.lifes = [];
-        this.lifeChance = 0.01;
+        this.lifeChance = 0;
         this.ground = 720;
         this.lifeCount = 3;
         this.score = 0;
@@ -41,45 +39,14 @@ var Game = (function () {
         this.objSpeed = 10;
         this.canSpawnLife = false;
         this.lifeSpawnCD = 1000;
-        this.canSpawnBin = false;
-        this.binSpawnCD = 60;
-        this.single = 0;
-        this.double = 1;
         this.clouds = [];
-        this.cloudChance = 0.1;
+        this.cloudChance = 0;
         this.cloudSpawnCD = 60;
         this.canSpawnCloud = false;
         this.gameLoop = function () {
             _this.levelObject.update();
             _this.player.update();
-            if (_this.binSpawnCD > 0 && !_this.canSpawnBin) {
-                _this.binSpawnCD--;
-            }
-            else {
-                _this.binSpawnCD = 70;
-                _this.canSpawnBin = true;
-            }
-            if (Math.random() < _this.binChance && _this.canSpawnBin && !_this.dead) {
-                var binType = void 0;
-                if (Math.random() > .5) {
-                    binType = 0;
-                }
-                else {
-                    binType = 1;
-                }
-                _this.bins.push(new Bin(_this, binType));
-                _this.canSpawnBin = false;
-            }
-            var deleteBin = [];
-            for (var i = 0; i < _this.bins.length; i++) {
-                _this.bins[i].update();
-                if (!_this.bins[i].alive) {
-                    deleteBin.push(i);
-                }
-            }
-            for (var i in deleteBin) {
-                _this.bins.splice(parseInt(i), 1);
-            }
+            _this.binSpawner.update();
             if (_this.cloudSpawnCD > 0 && !_this.canSpawnCloud) {
                 _this.cloudSpawnCD--;
             }
@@ -140,8 +107,8 @@ var Game = (function () {
             }
             _this.ctx.fillStyle = "black";
             _this.ctx.fillRect(_this.player.x, _this.player.y, _this.player.width, _this.player.height);
-            for (var i = 0; i < _this.bins.length; i++) {
-                _this.ctx.fillRect(_this.bins[i].x, _this.bins[i].y, _this.bins[i].width, _this.bins[i].height);
+            for (var i = 0; i < _this.binSpawner.bins.length; i++) {
+                _this.ctx.fillRect(_this.binSpawner.bins[i].x, _this.binSpawner.bins[i].y, _this.binSpawner.bins[i].width, _this.binSpawner.bins[i].height);
             }
             for (var i = 0; i < _this.levelObject.words.length; i++) {
                 if (_this.levelObject.words[i].fake)
@@ -163,6 +130,7 @@ var Game = (function () {
             requestAnimationFrame(_this.gameLoop);
         };
         this.levelObject = new Levels(this);
+        this.binSpawner = new binSpawner(this);
         this.player = new Player(this);
         requestAnimationFrame(this.gameLoop);
     }
@@ -201,29 +169,34 @@ var Bin = (function () {
         this.width = 50;
         this.height = 50;
         this.alive = true;
-        this.gameObject = game;
-        this.hspeed = this.gameObject.objSpeed;
-        this.x = this.gameObject.canvasWidth;
-        this.y = this.gameObject.ground - this.height;
+        this.game = game;
+        this.hspeed = this.game.objSpeed;
         this.type = type;
         switch (this.type) {
-            case this.gameObject.single:
-                this.width = 75;
-                this.height = 100;
-                this.y = this.gameObject.ground - this.height;
+            case this.game.binSpawner.single:
+                this.width = 50;
+                this.height = 125;
+                this.y = this.game.ground - this.height;
                 break;
-            case this.gameObject.double:
+            case this.game.binSpawner.double:
                 this.width = 100;
-                this.height = 120;
-                this.y = this.gameObject.ground - this.height;
+                this.height = 125;
+                this.y = this.game.ground - this.height;
+                break;
+            case this.game.binSpawner.triple:
+                this.width = 150;
+                this.height = 125;
+                this.y = this.game.ground - this.height;
                 break;
         }
+        this.x = this.game.canvasWidth;
+        this.y = this.game.ground - this.height;
     }
     Bin.prototype.update = function () {
-        this.hspeed = this.gameObject.objSpeed;
-        if (this.gameObject.collision(this)) {
+        this.hspeed = this.game.objSpeed;
+        if (this.game.collision(this)) {
             this.alive = false;
-            this.gameObject.lifeCount--;
+            this.game.lifeCount--;
         }
         if (this.x < 0 - this.width) {
             this.alive = false;
@@ -231,6 +204,52 @@ var Bin = (function () {
         this.x -= this.hspeed;
     };
     return Bin;
+}());
+var binSpawner = (function () {
+    function binSpawner(game) {
+        this.bins = [];
+        this.binChance = 0.03;
+        this.canSpawnBin = false;
+        this.binSpawnCD = 60;
+        this.single = 0;
+        this.double = 1;
+        this.triple = 2;
+        this.game = game;
+    }
+    binSpawner.prototype.update = function () {
+        if (this.binSpawnCD > 0 && !this.canSpawnBin) {
+            this.binSpawnCD--;
+        }
+        else {
+            this.binSpawnCD = 70;
+            this.canSpawnBin = true;
+        }
+        if (Math.random() < this.binChance && this.canSpawnBin && !this.game.dead) {
+            var binType = void 0;
+            if (Math.random() > .33) {
+                binType = this.single;
+            }
+            else if (Math.random() > .5) {
+                binType = this.double;
+            }
+            else {
+                binType = this.triple;
+            }
+            this.bins.push(new Bin(this.game, binType));
+            this.canSpawnBin = false;
+        }
+        var deleteBin = [];
+        for (var i = 0; i < this.bins.length; i++) {
+            this.bins[i].update();
+            if (!this.bins[i].alive) {
+                deleteBin.push(i);
+            }
+        }
+        for (var i in deleteBin) {
+            this.bins.splice(parseInt(i), 1);
+        }
+    };
+    return binSpawner;
 }());
 var Levels = (function () {
     function Levels(game) {
@@ -242,6 +261,15 @@ var Levels = (function () {
         this.gameObject = game;
         this.proverb = "";
         this.switch(this.gameObject.currentLevel);
+        var proverbs = {
+            level1: [
+                {
+                    string: "De .. valt niet ver van de boom",
+                    correct: ["appel"],
+                    incorrect: ["banaan"]
+                }
+            ]
+        };
     }
     Levels.prototype.update = function () {
         if (this.gameObject.currentLevel > 4)
@@ -341,9 +369,9 @@ var Player = (function () {
         this.mPressed = false;
         this.mReleased = false;
         this.sound = document.getElementById('jump');
-        this.gameObject = game;
-        this.y = this.gameObject.ground - this.height;
-        this.ground = this.gameObject.ground;
+        this.game = game;
+        this.y = this.game.ground - this.height;
+        this.ground = this.game.ground;
         this.jumpHeight = this.ground - this.height - 250;
         this.minJumpHeight = this.ground - this.height - 200;
         window.addEventListener("mousedown", function () { return _this.pressed(); });
@@ -387,21 +415,21 @@ var Player = (function () {
         this.mPressed = true;
         this.mReleased = false;
         this.sound.play();
-        if (this.gameObject.dead) {
-            this.gameObject.dead = false;
-            this.gameObject.lifeCount = 3;
-            this.gameObject.currentLevel = 1;
-            this.gameObject.levelObject.switch(this.gameObject.currentLevel);
-            this.gameObject.objSpeed = 10;
-            this.gameObject.score = 0;
-            this.gameObject.binSpawnCD = 100;
-            this.gameObject.canSpawnBin = false;
-            this.gameObject.cloudSpawnCD = 100;
-            this.gameObject.canSpawnCloud = false;
-            this.gameObject.canSpawnLife = false;
-            this.gameObject.lifeSpawnCD = 100;
-            this.gameObject.levelObject.wordSpawnCD = 200;
-            this.gameObject.levelObject.canSpawnWord = false;
+        if (this.game.dead) {
+            this.game.dead = false;
+            this.game.lifeCount = 3;
+            this.game.currentLevel = 1;
+            this.game.levelObject.switch(this.game.currentLevel);
+            this.game.objSpeed = 10;
+            this.game.score = 0;
+            this.game.binSpawner.binSpawnCD = 100;
+            this.game.binSpawner.canSpawnBin = false;
+            this.game.cloudSpawnCD = 100;
+            this.game.canSpawnCloud = false;
+            this.game.canSpawnLife = false;
+            this.game.lifeSpawnCD = 100;
+            this.game.levelObject.wordSpawnCD = 200;
+            this.game.levelObject.canSpawnWord = false;
         }
     };
     Player.prototype.released = function () {

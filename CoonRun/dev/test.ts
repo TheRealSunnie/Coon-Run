@@ -4,7 +4,7 @@ class Test {
     mijnvalue:boolean
 
 
-    constructor(){
+    constructor () {
         // Hier initializeren je stuff
         this.mijnvalue = true
         this.update()

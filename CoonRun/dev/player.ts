@@ -3,7 +3,7 @@ class Player {
     public height:number = 200
     public x:number = 15
     public y:number
-    private gameObject:Game
+    private game:Game
     public ground:number
     public jumping:boolean = false
     public vSpeed:number = 0
@@ -19,9 +19,9 @@ class Player {
 
     constructor(game:Game) {
         //console.log("i am a player!")
-        this.gameObject = game
-        this.y = this.gameObject.ground-this.height
-        this.ground = this.gameObject.ground
+        this.game = game
+        this.y = this.game.ground-this.height
+        this.ground = this.game.ground
         this.jumpHeight = this.ground-this.height - 250
         this.minJumpHeight = this.ground-this.height - 200
         // Checks for input
@@ -70,21 +70,13 @@ class Player {
         this.mPressed = true
         this.mReleased = false
         this.sound.play();
-        if(this.gameObject.dead) {
-            this.gameObject.dead = false
-            this.gameObject.lifeCount = 3
-            this.gameObject.currentLevel = 1
-            this.gameObject.levelObject.switch(this.gameObject.currentLevel)
-            this.gameObject.objSpeed = 10
-            this.gameObject.score = 0
-            this.gameObject.binSpawnCD = 100
-            this.gameObject.canSpawnBin = false
-            this.gameObject.cloudSpawnCD = 100
-            this.gameObject.canSpawnCloud = false
-            this.gameObject.canSpawnLife = false
-            this.gameObject.lifeSpawnCD = 100
-            this.gameObject.levelObject.wordSpawnCD = 200
-            this.gameObject.levelObject.canSpawnWord = false
+        if(this.game.dead) {
+            this.game.dead = false
+            this.game.lifeCount = 3
+            this.game.currentLevel = 1
+            this.game.levelObject.switch(this.game.currentLevel)
+            this.game.objSpeed = 10
+            this.game.score = 0
         }
     }
 

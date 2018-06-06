@@ -5,39 +5,45 @@ class Bin {
     public x:number
     public y:number
     public hspeed:number
-    private gameObject:Game
+    private game:Game
     public type:number
     public alive:boolean = true
 
-    constructor (game:Game, type:number) { // Get game, ground height, canvas width, moving speed and type
-        this.gameObject = game
-        this.hspeed = this.gameObject.objSpeed
-        this.x = this.gameObject.canvasWidth
-        this.y = this.gameObject.ground-this.height
+    constructor (game:Game, type:number) {
+        this.game = game
+        this.hspeed = this.game.objSpeed
         this.type = type
 
         switch (this.type) { // Bins can have different types/sizes/sprites..
-            case this.gameObject.single:
-                this.width = 75
-                this.height = 100
-                this.y = this.gameObject.ground-this.height
+            case this.game.Spawner.single:
+                this.width = 50
+                this.height = 125
+                this.y = this.game.ground-this.height
                 break;
 
-            case this.gameObject.double:
+            case this.game.Spawner.double:
                 this.width = 100
-                this.height = 120
-                this.y = this.gameObject.ground-this.height
+                this.height = 125
+                this.y = this.game.ground-this.height
+                break;
+            case this.game.Spawner.triple:
+                this.width = 150
+                this.height = 125
+                this.y = this.game.ground-this.height
                 break;
         }
+
+        this.x = this.game.canvasWidth
+        this.y = this.game.ground-this.height
     }
 
     update():void {
-        this.hspeed = this.gameObject.objSpeed
+        this.hspeed = this.game.objSpeed
         // If there is a collision toggle the player state
-        if (this.gameObject.collision(this)) { 
+        if (this.game.collision(this)) { 
             this.alive = false
-            this.gameObject.lifeCount--
-            //if (!this.gameObject.dead) this.gameObject.dead = true; else this.gameObject.dead = false
+            this.game.lifeCount--
+            //if (!this.game.dead) this.game.dead = true; else this.game.dead = false
             //console.log("collision detected")
         }
         // Deactivate when bin leaves left side of screen
@@ -47,5 +53,9 @@ class Bin {
         }
         // Move
         this.x -= this.hspeed
+
+        // Draw
+        this.game.ctx.fillStyle = "black"
+        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }
