@@ -2,6 +2,8 @@ class Levels {
 
     private game:Game
     public proverbs:Proverbs = new Proverbs()
+    private proverbArray:Array<number> = []
+    public currentProverb:{string: string, correct: string[], incorrect: string[]} = {string:"", correct:[""], incorrect:[""]}
     public currentString:string = ""
 
     private maxSpeed:number = 0
@@ -27,25 +29,38 @@ class Levels {
         switch (level) {
             case 0:
                 this.maxSpeed = 0
+                this.proverbArray = [0, 1]
+                this.currentProverb = {string:"", correct:[""], incorrect:[""]}
                 break;
             case 1:
-                this.currentString = this.proverbs.list[0].string
                 this.maxSpeed = 13
+                this.currentString = this.proverbs.list[0].string
+                this.proverbArray = [3]
+                this.currentProverb = this.random()
                 break;
 
             case 2:
-                this.currentString = this.proverbs.list[0].string
                 this.maxSpeed = 15
+                this.currentString = this.proverbs.list[0].string
+                this.proverbArray = [2]
+                this.currentProverb = this.random()
                 break;
             case 3:
-                this.currentString = this.proverbs.list[0].string
                 this.maxSpeed = 17
+                this.currentString = this.proverbs.list[0].string
+                this.proverbArray = [3]
+                this.currentProverb = this.random()
                 break;
             case 4:
-                this.currentString = this.proverbs.list[0].string
                 this.maxSpeed = 20
+                this.currentString = this.proverbs.list[0].string
+                this.proverbArray = [4]
+                this.currentProverb = this.random()
                 break;
         }
     }
 
+    random():any {
+        return this.proverbs.list[this.proverbArray[Math.floor(Math.random() * this.proverbArray.length)]]
+    }
 }

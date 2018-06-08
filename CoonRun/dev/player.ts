@@ -63,6 +63,9 @@ class Player {
         if (this.y > this.ground-this.height) {
             this.y = this.ground-this.height
         }
+
+        this.game.ctx.fillStyle = "black"
+        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
     }
     // Changes the input variables
     pressed():void {

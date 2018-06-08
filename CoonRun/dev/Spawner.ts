@@ -15,11 +15,10 @@ class Spawner {
     public wordSpawnCD:number = 300
 
     public clouds:Array<Cloud> = [];
-    public cloudChance = 0
+    public cloudChance = 0.1
     public canSpawnCloud:boolean = false
     public cloudSpawnCD:number = 60
   
-
     public lifes:Array<Life> = [];
     public lifeChance = 0
     public canSpawnLife:boolean = false
@@ -30,14 +29,13 @@ class Spawner {
 
     }
 
-
     update():void{
         // Bins
         // Countdown for spawning
         if (this.binSpawnCD > 0 && !this.canSpawnBin) {
             this.binSpawnCD--
         } else {
-            this.binSpawnCD = 70
+            this.binSpawnCD = 20
             this.canSpawnBin = true // Bin may spawn when spawnCD hits 0
         }
 
@@ -54,13 +52,14 @@ class Spawner {
             this.bins.push(new Bin(this.game, binType))
             this.canSpawnBin = false // Restart the cooldown for spawning
         }
-        let deleteBin = [] // Temp holder for removed bins
+        let deleteBin:number[] = [] // Temp holder for removed bins
         for (let i=0; i<this.bins.length; i++) {
             this.bins[i].update() // Moves the bins
             if (!this.bins[i].alive) {
                 deleteBin.push(i) // Move object to the temp holder
             }
         }
+        deleteBin.reverse()
         for (const i in deleteBin) {
             this.bins.splice(parseInt(i), 1) // Empty the temp holder
         }

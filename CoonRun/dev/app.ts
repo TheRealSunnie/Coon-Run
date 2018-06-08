@@ -7,7 +7,7 @@
     public currentLevel:number = 1
     private player:Player
     public ground:number = 720
-    public lifeCount:number = 3 
+    public lifeCount:number = 15
     public score:number = 0
     public dead:boolean = false
     public objSpeed:number = 10

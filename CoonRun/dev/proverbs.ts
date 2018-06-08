@@ -21,7 +21,7 @@ class Proverbs {
             correct: ["appel"],
             incorrect: ["banaan"]
         },
-    ];
+    ]
 
     constructor() {
 
