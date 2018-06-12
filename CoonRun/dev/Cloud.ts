@@ -14,7 +14,7 @@ class Cloud {
         this.x = this.game.canvasWidth
         this.y = Math.floor(Math.random()*200) + 2
         this.hspeed = this.game.objSpeed
-        
+        console.log("cloud")
     }
 
 

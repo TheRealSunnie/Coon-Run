@@ -31,6 +31,8 @@ class Levels {
                 this.maxSpeed = 0
                 this.proverbArray = [0, 1]
                 this.currentProverb = {string:"", correct:[""], incorrect:[""]}
+
+
                 break;
             case 1:
                 this.maxSpeed = 13
@@ -58,6 +60,15 @@ class Levels {
                 this.currentProverb = this.random()
                 break;
         }
+    }
+
+    restart() {
+        this.game.dead = false
+        this.game.currentLevel = 1
+        this.game.lifeCount = this.game.maxLifes
+        this.game.levelObject.switch(this.game.currentLevel)
+        this.game.objSpeed = this.game.startObjSpeed
+        this.game.score = 0
     }
 
     random():any {

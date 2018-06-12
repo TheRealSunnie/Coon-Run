@@ -15,7 +15,7 @@ class Spawner {
     public wordSpawnCD:number = 300
 
     public clouds:Array<Cloud> = [];
-    public cloudChance = 0.1
+    public cloudChance = 0.05
     public canSpawnCloud:boolean = false
     public cloudSpawnCD:number = 60
   
@@ -30,28 +30,69 @@ class Spawner {
     }
 
     update():void{
-        // Bins
-        // Countdown for spawning
-        if (this.binSpawnCD > 0 && !this.canSpawnBin) {
-            this.binSpawnCD--
-        } else {
-            this.binSpawnCD = 20
-            this.canSpawnBin = true // Bin may spawn when spawnCD hits 0
-        }
-
-        if (Math.random() < this.binChance && this.canSpawnBin && !this.game.dead) {
-            let binType:number
-            if (Math.random()>.33) { // Decide on bin type
-                binType = this.single
-            } else if (Math.random()>.5) {
-                binType = this.double
+        if (!this.game.dead && this.game.currentLevel != 0) {
+            // Countdown for spawning
+            if (this.binSpawnCD > 0 && !this.canSpawnBin) {
+                this.binSpawnCD--
             } else {
-                binType = this.triple
+                this.binSpawnCD = 60
+                this.canSpawnBin = true // Bin may spawn when spawnCD hits 0
             }
-            // New bin
-            this.bins.push(new Bin(this.game, binType))
-            this.canSpawnBin = false // Restart the cooldown for spawning
+            if (Math.random() < this.binChance && this.canSpawnBin) {
+                let binType:number
+                if (Math.random()>.33) { // Decide on bin type
+                    binType = this.single
+                } else if (Math.random()>.5) {
+                    binType = this.double
+                } else {
+                    binType = this.triple
+                }
+                // New bin
+                this.bins.push(new Bin(this.game, binType))
+                this.canSpawnBin = false // Restart the cooldown for spawning
+            }
+
+            if (this.wordSpawnCD > 0 && !this.canSpawnWord) {
+                this.wordSpawnCD--
+            } else {
+                this.wordSpawnCD = 300
+                this.canSpawnWord = true
+            }
+            if (Math.random() < this.wordChance && this.canSpawnWord) {
+                let wordType:boolean
+                if (Math.random()>.5) {
+                    wordType = true
+                } else {
+                    wordType = false
+                }
+                // New word
+                this.words.push(new Word(this.game, 0, wordType))
+                this.canSpawnWord = false
+            }
+
+            if(this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
+                this.cloudSpawnCD--
+            } else {
+                this.cloudSpawnCD = 60
+                this.canSpawnCloud = true
+            }
+            if (Math.random() < this.cloudChance && this.canSpawnCloud) {
+                this.clouds.push (new Cloud(this.game))
+                this.canSpawnCloud = false
+            }    
+
+            if(this.lifeSpawnCD > 0 && !this.canSpawnLife) {
+                this.lifeSpawnCD--
+            } else {
+                this.lifeSpawnCD = 1100
+                this.canSpawnLife = true
+            }
+            if (Math.random() < this.lifeChance && this.canSpawnLife) {
+                this.lifes.push (new Life(this.game))
+                this.canSpawnLife = false
+            }
         }
+        // Bins
         let deleteBin:number[] = [] // Temp holder for removed bins
         for (let i=0; i<this.bins.length; i++) {
             this.bins[i].update() // Moves the bins
@@ -65,48 +106,19 @@ class Spawner {
         }
 
         // Words
-        if (this.wordSpawnCD > 0 && !this.canSpawnWord) {
-            this.wordSpawnCD--
-        } else {
-            this.wordSpawnCD = 300
-            this.canSpawnWord = true // Bin may spawn when spawnCD hits 0
-        }
-
-        if (Math.random() < this.wordChance && this.canSpawnWord && !this.game.dead) {
-            let wordType:boolean
-            if (Math.random()>.5) { // Decide on bin type
-                wordType = true
-            } else {
-                wordType = false
-            }
-            // New word
-            this.words.push(new Word(this.game, 0, wordType))
-            this.canSpawnWord = false // Restart the cooldown for spawning
-        }
-        let deleteWord = [] // Temp holder for removed bins
+        let deleteWord = []
         for(let i=0; i<this.words.length; i++) {
-            this.words[i].update() // Moves the bins
+            this.words[i].update()
             if (!this.words[i].alive) {
-                deleteWord.push(i) // Move object to the temp holder
+                deleteWord.push(i)
             }
         }
+        deleteWord.reverse()
         for (const i in deleteWord) {
-            this.words.splice(parseInt(i), 1) // Empty the temp holder
+            this.words.splice(parseInt(i), 1)
         }
 
         // Cloud
-        if(this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
-            this.cloudSpawnCD--
-        } else {
-            this.cloudSpawnCD = 50
-            this.canSpawnCloud = true
-        }
-
-        if (Math.random() < this.cloudChance && this.canSpawnCloud) {
-            this.clouds.push (new Cloud(this.game))
-            this.canSpawnCloud = false
-        }
-
         let deleteCloud = []
         for(let i=0; i<this.clouds.length; i++) {
             this.clouds[i].update()
@@ -114,24 +126,12 @@ class Spawner {
                 deleteCloud.push(i)
             }
         }
-
+        deleteCloud.reverse()
         for (const i in deleteCloud) {
             this.clouds.splice(parseInt(i), 1)
         }
 
         // Life
-        if(this.lifeSpawnCD > 0 && !this.canSpawnLife) {
-            this.lifeSpawnCD--
-        } else {
-            this.lifeSpawnCD = 1100
-            this.canSpawnLife = true
-        }
-
-        if (Math.random() < this.lifeChance && this.canSpawnLife) {
-            this.lifes.push (new Life(this.game))
-            this.canSpawnLife = false
-        }
-
         let deleteLife = []
         for(let i=0; i<this.lifes.length; i++) {
             this.lifes[i].update()
@@ -139,7 +139,7 @@ class Spawner {
                 deleteLife.push(i)
             }
         }
-
+        deleteLife.reverse()
         for (const i in deleteLife) {
             this.lifes.splice(parseInt(i), 1)
         }
@@ -154,6 +154,5 @@ class Spawner {
         if (this.game.score < 0) {
             this.game.score = 0
         }
-
     }
 }

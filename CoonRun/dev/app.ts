@@ -4,13 +4,15 @@
     public canvasWidth:number = 1280
     public Spawner:Spawner
     public levelObject: Levels
-    public currentLevel:number = 1
+    public currentLevel:number = 0
     private player:Player
     public ground:number = 720
-    public lifeCount:number = 15
+    public maxLifes:number = 2
+    public lifeCount:number = this.maxLifes
     public score:number = 0
     public dead:boolean = false
-    public objSpeed:number = 10
+    public startObjSpeed:number = 12
+    public objSpeed:number = this.startObjSpeed
 
     constructor() { // Load in all the stuff
         //console.log("new game created!")

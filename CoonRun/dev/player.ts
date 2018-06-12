@@ -73,13 +73,8 @@ class Player {
         this.mPressed = true
         this.mReleased = false
         this.sound.play();
-        if(this.game.dead) {
-            this.game.dead = false
-            this.game.lifeCount = 3
-            this.game.currentLevel = 1
-            this.game.levelObject.switch(this.game.currentLevel)
-            this.game.objSpeed = 10
-            this.game.score = 0
+        if(this.game.dead || this.game.currentLevel == 0) {
+            this.game.levelObject.restart()
         }
     }
 

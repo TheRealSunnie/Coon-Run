@@ -26,9 +26,9 @@ class Word {
             if(!this.fake) { 
                 this.game.currentLevel++
                 this.game.levelObject.switch(this.game.currentLevel)
-                this.game.score++
+
             } else {
-                this.game.score--
+
             }
         }
         if (this.x < 0-this.width) { 

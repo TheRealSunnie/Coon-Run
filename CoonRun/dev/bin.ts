@@ -13,7 +13,7 @@ class Bin {
         this.game = game
         this.hspeed = this.game.objSpeed
         this.type = type
-
+        console.log("bin")
         switch (this.type) { // Bins can have different types/sizes/sprites..
             case this.game.Spawner.single:
                 this.width = 50
@@ -43,8 +43,6 @@ class Bin {
         if (this.game.collision(this)) { 
             this.alive = false
             this.game.lifeCount--
-            //if (!this.game.dead) this.game.dead = true; else this.game.dead = false
-            //console.log("collision detected")
         }
         // Deactivate when bin leaves left side of screen
         if (this.x < 0-this.width) { 

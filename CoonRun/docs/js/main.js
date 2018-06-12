@@ -8,6 +8,7 @@ var Cloud = (function () {
         this.x = this.game.canvasWidth;
         this.y = Math.floor(Math.random() * 200) + 2;
         this.hspeed = this.game.objSpeed;
+        console.log("cloud");
     }
     Cloud.prototype.update = function () {
         this.hspeed = this.game.objSpeed;
@@ -34,7 +35,7 @@ var Spawner = (function () {
         this.canSpawnWord = false;
         this.wordSpawnCD = 300;
         this.clouds = [];
-        this.cloudChance = 0.1;
+        this.cloudChance = 0.05;
         this.canSpawnCloud = false;
         this.cloudSpawnCD = 60;
         this.lifes = [];
@@ -44,26 +45,68 @@ var Spawner = (function () {
         this.game = game;
     }
     Spawner.prototype.update = function () {
-        if (this.binSpawnCD > 0 && !this.canSpawnBin) {
-            this.binSpawnCD--;
-        }
-        else {
-            this.binSpawnCD = 20;
-            this.canSpawnBin = true;
-        }
-        if (Math.random() < this.binChance && this.canSpawnBin && !this.game.dead) {
-            var binType = void 0;
-            if (Math.random() > .33) {
-                binType = this.single;
-            }
-            else if (Math.random() > .5) {
-                binType = this.double;
+        if (!this.game.dead && this.game.currentLevel != 0) {
+            if (this.binSpawnCD > 0 && !this.canSpawnBin) {
+                this.binSpawnCD--;
             }
             else {
-                binType = this.triple;
+                this.binSpawnCD = 60;
+                this.canSpawnBin = true;
             }
-            this.bins.push(new Bin(this.game, binType));
-            this.canSpawnBin = false;
+            if (Math.random() < this.binChance && this.canSpawnBin) {
+                var binType = void 0;
+                if (Math.random() > .33) {
+                    binType = this.single;
+                }
+                else if (Math.random() > .5) {
+                    binType = this.double;
+                }
+                else {
+                    binType = this.triple;
+                }
+                this.bins.push(new Bin(this.game, binType));
+                this.canSpawnBin = false;
+            }
+            if (this.wordSpawnCD > 0 && !this.canSpawnWord) {
+                this.wordSpawnCD--;
+            }
+            else {
+                this.wordSpawnCD = 300;
+                this.canSpawnWord = true;
+            }
+            if (Math.random() < this.wordChance && this.canSpawnWord) {
+                var wordType = void 0;
+                if (Math.random() > .5) {
+                    wordType = true;
+                }
+                else {
+                    wordType = false;
+                }
+                this.words.push(new Word(this.game, 0, wordType));
+                this.canSpawnWord = false;
+            }
+            if (this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
+                this.cloudSpawnCD--;
+            }
+            else {
+                this.cloudSpawnCD = 60;
+                this.canSpawnCloud = true;
+            }
+            if (Math.random() < this.cloudChance && this.canSpawnCloud) {
+                this.clouds.push(new Cloud(this.game));
+                this.canSpawnCloud = false;
+            }
+            if (this.lifeSpawnCD > 0 && !this.canSpawnLife) {
+                this.lifeSpawnCD--;
+            }
+            else {
+                this.lifeSpawnCD = 1100;
+                this.canSpawnLife = true;
+            }
+            if (Math.random() < this.lifeChance && this.canSpawnLife) {
+                this.lifes.push(new Life(this.game));
+                this.canSpawnLife = false;
+            }
         }
         var deleteBin = [];
         for (var i = 0; i < this.bins.length; i++) {
@@ -76,24 +119,6 @@ var Spawner = (function () {
         for (var i in deleteBin) {
             this.bins.splice(parseInt(i), 1);
         }
-        if (this.wordSpawnCD > 0 && !this.canSpawnWord) {
-            this.wordSpawnCD--;
-        }
-        else {
-            this.wordSpawnCD = 300;
-            this.canSpawnWord = true;
-        }
-        if (Math.random() < this.wordChance && this.canSpawnWord && !this.game.dead) {
-            var wordType = void 0;
-            if (Math.random() > .5) {
-                wordType = true;
-            }
-            else {
-                wordType = false;
-            }
-            this.words.push(new Word(this.game, 0, wordType));
-            this.canSpawnWord = false;
-        }
         var deleteWord = [];
         for (var i = 0; i < this.words.length; i++) {
             this.words[i].update();
@@ -101,19 +126,9 @@ var Spawner = (function () {
                 deleteWord.push(i);
             }
         }
+        deleteWord.reverse();
         for (var i in deleteWord) {
             this.words.splice(parseInt(i), 1);
-        }
-        if (this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
-            this.cloudSpawnCD--;
-        }
-        else {
-            this.cloudSpawnCD = 50;
-            this.canSpawnCloud = true;
-        }
-        if (Math.random() < this.cloudChance && this.canSpawnCloud) {
-            this.clouds.push(new Cloud(this.game));
-            this.canSpawnCloud = false;
         }
         var deleteCloud = [];
         for (var i = 0; i < this.clouds.length; i++) {
@@ -122,19 +137,9 @@ var Spawner = (function () {
                 deleteCloud.push(i);
             }
         }
+        deleteCloud.reverse();
         for (var i in deleteCloud) {
             this.clouds.splice(parseInt(i), 1);
-        }
-        if (this.lifeSpawnCD > 0 && !this.canSpawnLife) {
-            this.lifeSpawnCD--;
-        }
-        else {
-            this.lifeSpawnCD = 1100;
-            this.canSpawnLife = true;
-        }
-        if (Math.random() < this.lifeChance && this.canSpawnLife) {
-            this.lifes.push(new Life(this.game));
-            this.canSpawnLife = false;
         }
         var deleteLife = [];
         for (var i = 0; i < this.lifes.length; i++) {
@@ -143,6 +148,7 @@ var Spawner = (function () {
                 deleteLife.push(i);
             }
         }
+        deleteLife.reverse();
         for (var i in deleteLife) {
             this.lifes.splice(parseInt(i), 1);
         }
@@ -189,12 +195,14 @@ var Game = (function () {
         this.canvas = document.getElementById('cnvs');
         this.ctx = this.canvas.getContext("2d");
         this.canvasWidth = 1280;
-        this.currentLevel = 1;
+        this.currentLevel = 0;
         this.ground = 720;
-        this.lifeCount = 15;
+        this.maxLifes = 2;
+        this.lifeCount = this.maxLifes;
         this.score = 0;
         this.dead = false;
-        this.objSpeed = 10;
+        this.startObjSpeed = 12;
+        this.objSpeed = this.startObjSpeed;
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.fillRect(0, 0, 1280, 720);
@@ -233,6 +241,7 @@ var Bin = (function () {
         this.game = game;
         this.hspeed = this.game.objSpeed;
         this.type = type;
+        console.log("bin");
         switch (this.type) {
             case this.game.Spawner.single:
                 this.width = 50;
@@ -319,6 +328,14 @@ var Levels = (function () {
                 this.currentProverb = this.random();
                 break;
         }
+    };
+    Levels.prototype.restart = function () {
+        this.game.dead = false;
+        this.game.currentLevel = 1;
+        this.game.lifeCount = this.game.maxLifes;
+        this.game.levelObject.switch(this.game.currentLevel);
+        this.game.objSpeed = this.game.startObjSpeed;
+        this.game.score = 0;
     };
     Levels.prototype.random = function () {
         return this.proverbs.list[this.proverbArray[Math.floor(Math.random() * this.proverbArray.length)]];
@@ -413,13 +430,8 @@ var Player = (function () {
         this.mPressed = true;
         this.mReleased = false;
         this.sound.play();
-        if (this.game.dead) {
-            this.game.dead = false;
-            this.game.lifeCount = 3;
-            this.game.currentLevel = 1;
-            this.game.levelObject.switch(this.game.currentLevel);
-            this.game.objSpeed = 10;
-            this.game.score = 0;
+        if (this.game.dead || this.game.currentLevel == 0) {
+            this.game.levelObject.restart();
         }
     };
     Player.prototype.released = function () {
@@ -487,10 +499,8 @@ var Word = (function () {
             if (!this.fake) {
                 this.game.currentLevel++;
                 this.game.levelObject.switch(this.game.currentLevel);
-                this.game.score++;
             }
             else {
-                this.game.score--;
             }
         }
         if (this.x < 0 - this.width) {
