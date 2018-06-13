@@ -8,7 +8,6 @@ var Cloud = (function () {
         this.x = this.game.canvasWidth;
         this.y = Math.floor(Math.random() * 200) + 2;
         this.hspeed = this.game.objSpeed;
-        console.log("cloud");
     }
     Cloud.prototype.update = function () {
         this.hspeed = this.game.objSpeed;
@@ -24,7 +23,7 @@ var Cloud = (function () {
 var Spawner = (function () {
     function Spawner(game) {
         this.bins = [];
-        this.binChance = 0.03;
+        this.binChance = 0.00;
         this.canSpawnBin = false;
         this.binSpawnCD = 60;
         this.single = 0;
@@ -71,18 +70,21 @@ var Spawner = (function () {
                 this.wordSpawnCD--;
             }
             else {
-                this.wordSpawnCD = 300;
+                this.wordSpawnCD = 150;
                 this.canSpawnWord = true;
             }
             if (Math.random() < this.wordChance && this.canSpawnWord) {
-                var wordType = void 0;
-                if (Math.random() > .5) {
-                    wordType = true;
+                var fake = void 0;
+                var name_1;
+                if (Math.random() > .9) {
+                    fake = true;
+                    name_1 = Math.floor(Math.random() * this.game.levelObject.currentProverb.incorrect.length);
                 }
                 else {
-                    wordType = false;
+                    fake = false;
+                    name_1 = Math.floor(Math.random() * this.game.levelObject.currentProverb.correct.length);
                 }
-                this.words.push(new Word(this.game, 0, wordType));
+                this.words.push(new Word(this.game, name_1, fake));
                 this.canSpawnWord = false;
             }
             if (this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
@@ -206,14 +208,14 @@ var Game = (function () {
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.fillRect(0, 0, 1280, 720);
-            _this.levelObject.update();
             _this.player.update();
             _this.Spawner.update();
+            _this.levelObject.update();
             _this.ctx.fillStyle = "black";
             _this.ctx.font = "30px Arial";
             _this.ctx.fillText(_this.lifeCount + " levens", 150, 450);
-            _this.ctx.fillText("Score: " + _this.score, 50, 100);
-            _this.ctx.fillText(_this.levelObject.currentString, _this.canvasWidth / 2, 100);
+            _this.ctx.fillText("Score: " + _this.score + _this.currentLevel, 50, 200);
+            _this.ctx.fillText(_this.levelObject.currentString, _this.canvasWidth / 2, 200);
             _this.ctx.stroke();
             requestAnimationFrame(_this.gameLoop);
         };
@@ -241,7 +243,6 @@ var Bin = (function () {
         this.game = game;
         this.hspeed = this.game.objSpeed;
         this.type = type;
-        console.log("bin");
         switch (this.type) {
             case this.game.Spawner.single:
                 this.width = 50;
@@ -285,7 +286,7 @@ var Levels = (function () {
         this.currentString = "";
         this.maxSpeed = 0;
         this.acceleration = 0.001;
-        this.maxLevel = 4;
+        this.maxLevel = 5;
         this.game = game;
         this.switch(this.game.currentLevel);
     }
@@ -295,50 +296,67 @@ var Levels = (function () {
         this.game.objSpeed += this.acceleration;
         if (this.game.objSpeed > this.maxSpeed)
             this.game.objSpeed = this.maxSpeed;
+        var correctIsZero = (this.currentProverb.correct.length == 0);
+        var proverbIsZero = (this.proverbArray.length == 0);
+        if (correctIsZero && proverbIsZero) {
+            this.game.currentLevel++;
+            if (this.game.currentLevel > this.maxLevel)
+                this.game.currentLevel = this.maxLevel;
+            this.switch(this.game.currentLevel);
+        }
+        else if (correctIsZero) {
+            this.switchProverb();
+        }
     };
     Levels.prototype.switch = function (level) {
         switch (level) {
             case 0:
                 this.maxSpeed = 0;
-                this.proverbArray = [0, 1];
-                this.currentProverb = { string: "", correct: [""], incorrect: [""] };
+                this.proverbArray = [0];
+                this.currentProverb = { string: "", correct: [], incorrect: [] };
+                this.currentString = this.currentProverb.string;
                 break;
             case 1:
                 this.maxSpeed = 13;
-                this.currentString = this.proverbs.list[0].string;
-                this.proverbArray = [3];
-                this.currentProverb = this.random();
+                this.proverbArray = [0];
                 break;
             case 2:
                 this.maxSpeed = 15;
-                this.currentString = this.proverbs.list[0].string;
-                this.proverbArray = [2];
-                this.currentProverb = this.random();
+                this.proverbArray = [1];
                 break;
             case 3:
                 this.maxSpeed = 17;
-                this.currentString = this.proverbs.list[0].string;
-                this.proverbArray = [3];
-                this.currentProverb = this.random();
+                this.proverbArray = [2];
                 break;
             case 4:
                 this.maxSpeed = 20;
-                this.currentString = this.proverbs.list[0].string;
-                this.proverbArray = [4];
-                this.currentProverb = this.random();
+                this.proverbArray = [3];
+                break;
+            case 5:
+                this.maxSpeed = 22;
+                this.proverbArray = [0];
                 break;
         }
+        if (this.game.currentLevel != 0)
+            this.switchProverb();
+    };
+    Levels.prototype.switchProverb = function () {
+        this.currentProverb = this.random();
+        this.currentString = this.currentProverb.string;
     };
     Levels.prototype.restart = function () {
         this.game.dead = false;
-        this.game.currentLevel = 1;
         this.game.lifeCount = this.game.maxLifes;
-        this.game.levelObject.switch(this.game.currentLevel);
         this.game.objSpeed = this.game.startObjSpeed;
         this.game.score = 0;
+        this.game.currentLevel = 1;
+        this.switch(this.game.currentLevel);
     };
     Levels.prototype.random = function () {
-        return this.proverbs.list[this.proverbArray[Math.floor(Math.random() * this.proverbArray.length)]];
+        var i = Math.floor(Math.random() * this.proverbArray.length);
+        var j = this.proverbArray[i];
+        this.proverbArray.splice(i, 1);
+        return this.proverbs.list[j];
     };
     return Levels;
 }());
@@ -426,7 +444,6 @@ var Player = (function () {
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
     };
     Player.prototype.pressed = function () {
-        console.log("pressed");
         this.mPressed = true;
         this.mReleased = false;
         this.sound.play();
@@ -435,7 +452,6 @@ var Player = (function () {
         }
     };
     Player.prototype.released = function () {
-        console.log("release");
         this.mPressed = false;
         this.mReleased = true;
     };
@@ -480,7 +496,7 @@ var Test = (function () {
     return Test;
 }());
 var Word = (function () {
-    function Word(game, name, fake) {
+    function Word(game, index, fake) {
         this.width = 50;
         this.height = 50;
         this.fake = false;
@@ -489,16 +505,22 @@ var Word = (function () {
         this.x = this.game.canvasWidth;
         this.y = this.game.ground - this.height - 250;
         this.hspeed = this.game.objSpeed;
-        this.name = name;
         this.fake = fake;
+        this.index = index;
+        if (this.fake) {
+            this.name = this.game.levelObject.currentProverb.incorrect[index];
+        }
+        else {
+            this.name = this.game.levelObject.currentProverb.correct[index];
+        }
     }
     Word.prototype.update = function () {
         this.hspeed = this.game.objSpeed;
         if (this.game.collision(this)) {
             this.alive = false;
             if (!this.fake) {
-                this.game.currentLevel++;
-                this.game.levelObject.switch(this.game.currentLevel);
+                this.game.levelObject.currentProverb.correct.splice(this.index, 1);
+                console.log(this.game.levelObject.currentProverb.correct.length);
             }
             else {
             }

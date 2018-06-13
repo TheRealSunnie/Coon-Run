@@ -6,17 +6,23 @@ class Word {
     public y:number
     public hspeed:number
     private game:Game
-    public name:number
+    private index:number
+    public name:string
     public fake:boolean = false
     public alive:boolean = true
 
-    constructor (game:Game, name:number, fake:boolean) { 
+    constructor (game:Game, index:number, fake:boolean) { 
         this.game = game
         this.x = this.game.canvasWidth
         this.y = this.game.ground-this.height - 250
         this.hspeed = this.game.objSpeed
-        this.name = name
         this.fake = fake
+        this.index = index
+        if (this.fake) {
+            this.name = this.game.levelObject.currentProverb.incorrect[index]
+        } else {
+            this.name = this.game.levelObject.currentProverb.correct[index]
+        }
     }
 
     update():void {
@@ -24,11 +30,10 @@ class Word {
         if (this.game.collision(this)) { 
             this.alive = false
             if(!this.fake) { 
-                this.game.currentLevel++
-                this.game.levelObject.switch(this.game.currentLevel)
-
+                this.game.levelObject.currentProverb.correct.splice(this.index, 1)
+                console.log(this.game.levelObject.currentProverb.correct.length);
             } else {
-
+                // Loses points
             }
         }
         if (this.x < 0-this.width) { 

@@ -2,7 +2,7 @@ class Spawner {
 
     game:Game
     public bins:Array<Bin> = [];
-    public binChance = 0.03 // Chance of bin spawning
+    public binChance = 0.00 // Chance of bin spawning
     public canSpawnBin:boolean = false
     public binSpawnCD:number = 60
     public single = 0
@@ -55,18 +55,21 @@ class Spawner {
             if (this.wordSpawnCD > 0 && !this.canSpawnWord) {
                 this.wordSpawnCD--
             } else {
-                this.wordSpawnCD = 300
+                this.wordSpawnCD = 150
                 this.canSpawnWord = true
             }
             if (Math.random() < this.wordChance && this.canSpawnWord) {
-                let wordType:boolean
-                if (Math.random()>.5) {
-                    wordType = true
+                let fake:boolean
+                let name:number
+                if (Math.random()>.9) {
+                    fake = true
+                    name = Math.floor(Math.random() * this.game.levelObject.currentProverb.incorrect.length)
                 } else {
-                    wordType = false
+                    fake = false
+                    name = Math.floor(Math.random() * this.game.levelObject.currentProverb.correct.length)
                 }
                 // New word
-                this.words.push(new Word(this.game, 0, wordType))
+                this.words.push(new Word(this.game, name, fake))
                 this.canSpawnWord = false
             }
 

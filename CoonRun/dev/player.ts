@@ -69,7 +69,7 @@ class Player {
     }
     // Changes the input variables
     pressed():void {
-        console.log("pressed")
+        //console.log("pressed")
         this.mPressed = true
         this.mReleased = false
         this.sound.play();
@@ -79,7 +79,7 @@ class Player {
     }
 
     released():void {
-        console.log("release");
+        //console.log("release");
         this.mPressed = false
         this.mReleased = true
     }

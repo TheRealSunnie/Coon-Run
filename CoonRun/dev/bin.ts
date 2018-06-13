@@ -13,7 +13,6 @@ class Bin {
         this.game = game
         this.hspeed = this.game.objSpeed
         this.type = type
-        console.log("bin")
         switch (this.type) { // Bins can have different types/sizes/sprites..
             case this.game.Spawner.single:
                 this.width = 50
