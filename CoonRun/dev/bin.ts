@@ -1,5 +1,7 @@
 class Bin {
 
+    public binImage: HTMLImageElement = <HTMLImageElement>document.getElementById('bin')
+
     public width:number = 50
     public height:number = 50
     public x:number
@@ -19,7 +21,6 @@ class Bin {
                 this.height = 125
                 this.y = this.game.ground-this.height
                 break;
-
             case this.game.Spawner.double:
                 this.width = 100
                 this.height = 125
@@ -54,5 +55,6 @@ class Bin {
         // Draw
         this.game.ctx.fillStyle = "black"
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+        this.game.ctx.drawImage(this.binImage, this.x, this.y, this.width, this.height)
     }
 }

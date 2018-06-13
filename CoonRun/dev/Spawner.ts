@@ -2,7 +2,7 @@ class Spawner {
 
     game:Game
     public bins:Array<Bin> = [];
-    public binChance = 0.00 // Chance of bin spawning
+    public binChance = 0.03 // Chance of bin spawning
     public canSpawnBin:boolean = false
     public binSpawnCD:number = 60
     public single = 0

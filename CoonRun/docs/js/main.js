@@ -1,6 +1,7 @@
 "use strict";
 var Cloud = (function () {
     function Cloud(game) {
+        this.wolkImage = document.getElementById('wolk');
         this.width = 100;
         this.height = 50;
         this.alive = true;
@@ -17,13 +18,14 @@ var Cloud = (function () {
         this.x -= this.hspeed;
         this.game.ctx.fillStyle = "white";
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.game.ctx.drawImage(this.wolkImage, this.x, this.y, this.width, this.height);
     };
     return Cloud;
 }());
 var Spawner = (function () {
     function Spawner(game) {
         this.bins = [];
-        this.binChance = 0.00;
+        this.binChance = 0.03;
         this.canSpawnBin = false;
         this.binSpawnCD = 60;
         this.single = 0;
@@ -237,6 +239,7 @@ var Game = (function () {
 window.addEventListener("load", function () { return new Game(); });
 var Bin = (function () {
     function Bin(game, type) {
+        this.binImage = document.getElementById('bin');
         this.width = 50;
         this.height = 50;
         this.alive = true;
@@ -275,6 +278,7 @@ var Bin = (function () {
         this.x -= this.hspeed;
         this.game.ctx.fillStyle = "black";
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.game.ctx.drawImage(this.binImage, this.x, this.y, this.width, this.height);
     };
     return Bin;
 }());
@@ -388,7 +392,8 @@ var Life = (function () {
 var Player = (function () {
     function Player(game) {
         var _this = this;
-        this.width = 100;
+        this.playerImage = document.getElementById('player');
+        this.width = 150;
         this.height = 200;
         this.x = 15;
         this.jumping = false;
@@ -400,6 +405,8 @@ var Player = (function () {
         this.mPressed = false;
         this.mReleased = false;
         this.sound = document.getElementById('jump');
+        this.spaceKey = 32;
+        this.ducking = false;
         this.game = game;
         this.y = this.game.ground - this.height;
         this.ground = this.game.ground;
@@ -407,6 +414,8 @@ var Player = (function () {
         this.minJumpHeight = this.ground - this.height - 200;
         window.addEventListener("mousedown", function () { return _this.pressed(); });
         window.addEventListener("mouseup", function () { return _this.released(); });
+        window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
+        window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
     }
     Player.prototype.update = function () {
         if (this.y + this.height == this.ground)
@@ -442,6 +451,7 @@ var Player = (function () {
         }
         this.game.ctx.fillStyle = "black";
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height);
     };
     Player.prototype.pressed = function () {
         this.mPressed = true;
@@ -454,6 +464,20 @@ var Player = (function () {
     Player.prototype.released = function () {
         this.mPressed = false;
         this.mReleased = true;
+    };
+    Player.prototype.onKeyDown = function (e) {
+        this.spaceKey;
+        if (this.ducking == false) {
+            this.height = this.height / 2;
+            this.y += 100;
+        }
+        this.ducking = true;
+    };
+    Player.prototype.onKeyUp = function (e) {
+        this.spaceKey;
+        this.height = this.height * 2;
+        this.y -= 100;
+        this.ducking = false;
     };
     return Player;
 }());

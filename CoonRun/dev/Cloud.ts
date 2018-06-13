@@ -1,5 +1,7 @@
 class Cloud {
 
+    public wolkImage: HTMLImageElement = <HTMLImageElement>document.getElementById('wolk')
+
     public width: number = 100
     public height: number = 50
     public x:number
@@ -28,5 +30,6 @@ class Cloud {
         // Draw
         this.game.ctx.fillStyle = "white"
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+        this.game.ctx.drawImage(this.wolkImage, this.x, this.y, this.width, this.height)
     }
 }
