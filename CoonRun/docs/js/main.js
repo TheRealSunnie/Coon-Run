@@ -1,27 +1,53 @@
 "use strict";
-var Cloud = (function () {
-    function Cloud(game) {
-        this.wolkImage = document.getElementById('wolk');
-        this.width = 100;
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var basicObject = (function () {
+    function basicObject(game) {
+        this.width = 50;
         this.height = 50;
         this.alive = true;
+        this.hspeed = 0;
+        this.Image = document.getElementById('bin');
         this.game = game;
         this.x = this.game.canvasWidth;
-        this.y = Math.floor(Math.random() * 200) + 2;
-        this.hspeed = this.game.objSpeed;
+        this.y = this.game.ground - this.height;
     }
-    Cloud.prototype.update = function () {
-        this.hspeed = this.game.objSpeed;
+    basicObject.prototype.update = function () {
         if (this.x < 0 - this.width) {
             this.alive = false;
         }
         this.x -= this.hspeed;
-        this.game.ctx.fillStyle = "white";
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
-        this.game.ctx.drawImage(this.wolkImage, this.x, this.y, this.width, this.height);
+        this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height);
+    };
+    return basicObject;
+}());
+var Cloud = (function (_super) {
+    __extends(Cloud, _super);
+    function Cloud(game) {
+        var _this = _super.call(this, game) || this;
+        _this.Image = document.getElementById('wolk');
+        _this.game = game;
+        _this.x = _this.game.canvasWidth;
+        _this.y = Math.floor(Math.random() * 150) + 5;
+        _this.hspeed = _this.game.objSpeed;
+        return _this;
+    }
+    Cloud.prototype.update = function () {
+        this.hspeed = this.game.objSpeed;
+        this.game.ctx.fillStyle = "white";
+        _super.prototype.update.call(this);
     };
     return Cloud;
-}());
+}(basicObject));
 var Spawner = (function () {
     function Spawner(game) {
         this.bins = [];
@@ -237,34 +263,34 @@ var Game = (function () {
     return Game;
 }());
 window.addEventListener("load", function () { return new Game(); });
-var Bin = (function () {
+var Bin = (function (_super) {
+    __extends(Bin, _super);
     function Bin(game, type) {
-        this.binImage = document.getElementById('bin');
-        this.width = 50;
-        this.height = 50;
-        this.alive = true;
-        this.game = game;
-        this.hspeed = this.game.objSpeed;
-        this.type = type;
-        switch (this.type) {
-            case this.game.Spawner.single:
-                this.width = 50;
-                this.height = 125;
-                this.y = this.game.ground - this.height;
+        var _this = _super.call(this, game) || this;
+        _this.Image = document.getElementById('bin');
+        _this.game = game;
+        _this.hspeed = _this.game.objSpeed;
+        _this.type = type;
+        switch (_this.type) {
+            case _this.game.Spawner.single:
+                _this.width = 50;
+                _this.height = 125;
+                _this.y = _this.game.ground - _this.height;
                 break;
-            case this.game.Spawner.double:
-                this.width = 100;
-                this.height = 125;
-                this.y = this.game.ground - this.height;
+            case _this.game.Spawner.double:
+                _this.width = 100;
+                _this.height = 125;
+                _this.y = _this.game.ground - _this.height;
                 break;
-            case this.game.Spawner.triple:
-                this.width = 150;
-                this.height = 125;
-                this.y = this.game.ground - this.height;
+            case _this.game.Spawner.triple:
+                _this.width = 150;
+                _this.height = 125;
+                _this.y = _this.game.ground - _this.height;
                 break;
         }
-        this.x = this.game.canvasWidth;
-        this.y = this.game.ground - this.height;
+        _this.x = _this.game.canvasWidth;
+        _this.y = _this.game.ground - _this.height;
+        return _this;
     }
     Bin.prototype.update = function () {
         this.hspeed = this.game.objSpeed;
@@ -272,16 +298,11 @@ var Bin = (function () {
             this.alive = false;
             this.game.lifeCount--;
         }
-        if (this.x < 0 - this.width) {
-            this.alive = false;
-        }
-        this.x -= this.hspeed;
         this.game.ctx.fillStyle = "black";
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
-        this.game.ctx.drawImage(this.binImage, this.x, this.y, this.width, this.height);
+        _super.prototype.update.call(this);
     };
     return Bin;
-}());
+}(basicObject));
 var Levels = (function () {
     function Levels(game) {
         this.proverbs = new Proverbs();
@@ -405,15 +426,14 @@ var Player = (function () {
         this.mPressed = false;
         this.mReleased = false;
         this.sound = document.getElementById('jump');
-        this.spaceKey = 32;
+        this.jumpKey = 32;
+        this.duckKey = 40;
         this.ducking = false;
         this.game = game;
         this.y = this.game.ground - this.height;
         this.ground = this.game.ground;
         this.jumpHeight = this.ground - this.height - 250;
         this.minJumpHeight = this.ground - this.height - 200;
-        window.addEventListener("mousedown", function () { return _this.pressed(); });
-        window.addEventListener("mouseup", function () { return _this.released(); });
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
     }
@@ -453,31 +473,35 @@ var Player = (function () {
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height);
     };
-    Player.prototype.pressed = function () {
-        this.mPressed = true;
-        this.mReleased = false;
-        this.sound.play();
-        if (this.game.dead || this.game.currentLevel == 0) {
-            this.game.levelObject.restart();
-        }
-    };
-    Player.prototype.released = function () {
-        this.mPressed = false;
-        this.mReleased = true;
-    };
     Player.prototype.onKeyDown = function (e) {
-        this.spaceKey;
-        if (this.ducking == false) {
-            this.height = this.height / 2;
-            this.y += 100;
+        if (e.keyCode == this.jumpKey) {
+            if (this.game.dead || this.game.currentLevel == 0) {
+                this.game.levelObject.restart();
+            }
+            else if (!this.ducking) {
+                this.mPressed = true;
+                this.mReleased = false;
+                this.sound.play();
+            }
         }
-        this.ducking = true;
+        if (!this.game.dead && this.game.currentLevel != 0) {
+            if (e.keyCode == this.duckKey && !this.ducking && this.grounded) {
+                this.height /= 2;
+                this.y += this.height;
+                this.ducking = true;
+            }
+        }
     };
     Player.prototype.onKeyUp = function (e) {
-        this.spaceKey;
-        this.height = this.height * 2;
-        this.y -= 100;
-        this.ducking = false;
+        if (e.keyCode == this.jumpKey) {
+            this.mPressed = false;
+            this.mReleased = true;
+        }
+        if (e.keyCode == this.duckKey && this.ducking) {
+            this.y -= this.height;
+            this.height *= 2;
+            this.ducking = false;
+        }
     };
     return Player;
 }());

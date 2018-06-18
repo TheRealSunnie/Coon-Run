@@ -1,17 +1,14 @@
-class Bin {
+/// <reference path="basicObject.ts"/>
 
-    public binImage: HTMLImageElement = <HTMLImageElement>document.getElementById('bin')
-
-    public width:number = 50
-    public height:number = 50
-    public x:number
-    public y:number
-    public hspeed:number
-    private game:Game
+class Bin extends basicObject {
+    
     public type:number
-    public alive:boolean = true
 
     constructor (game:Game, type:number) {
+        super(game)
+
+        this.Image = <HTMLImageElement>document.getElementById('bin')
+
         this.game = game
         this.hspeed = this.game.objSpeed
         this.type = type
@@ -44,17 +41,9 @@ class Bin {
             this.alive = false
             this.game.lifeCount--
         }
-        // Deactivate when bin leaves left side of screen
-        if (this.x < 0-this.width) { 
-            // Delete bin
-            this.alive = false
-        }
-        // Move
-        this.x -= this.hspeed
-
+        
         // Draw
         this.game.ctx.fillStyle = "black"
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
-        this.game.ctx.drawImage(this.binImage, this.x, this.y, this.width, this.height)
+        super.update()
     }
 }
