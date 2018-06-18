@@ -7,26 +7,29 @@ class Bin extends basicObject {
     constructor (game:Game, type:number) {
         super(game)
 
-        this.Image = <HTMLImageElement>document.getElementById('bin')
+ 
 
         this.game = game
         this.hspeed = this.game.objSpeed
         this.type = type
         switch (this.type) { // Bins can have different types/sizes/sprites..
             case this.game.Spawner.single:
-                this.width = 50
+                this.width = 75
                 this.height = 125
                 this.y = this.game.ground-this.height
+                this.Image = <HTMLImageElement>document.getElementById('bin')
                 break;
             case this.game.Spawner.double:
-                this.width = 100
+                this.width = 150
                 this.height = 125
                 this.y = this.game.ground-this.height
+                this.Image = <HTMLImageElement>document.getElementById('bin2')
                 break;
             case this.game.Spawner.triple:
                 this.width = 150
                 this.height = 125
                 this.y = this.game.ground-this.height
+                this.Image = <HTMLImageElement>document.getElementById('bin3')
                 break;
         }
 

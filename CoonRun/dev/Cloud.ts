@@ -7,7 +7,8 @@ class Cloud extends basicObject {
         super(game)
 
         this.Image = <HTMLImageElement>document.getElementById('wolk')
-
+        this.width = 150
+        this.height = 75
         this.game = game
         this.x = this.game.canvasWidth
         this.y = Math.floor(Math.random()*150) + 5

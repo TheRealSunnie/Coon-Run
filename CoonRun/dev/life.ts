@@ -1,18 +1,17 @@
-class Life {
+/// <reference path="basicObject.ts"/>
 
-    public width:number = 50
-    public height:number = 50
-    public x:number
-    public y:number
-    public hspeed:number
-    private game:Game
+class Life extends basicObject{
+
+
     public alive:boolean = true
 
     constructor (game:Game) { // Get game, ground height, canvas width, moving speed and type
+        super(game)
         this.game = game
         this.hspeed = this.game.objSpeed
         this.x = this.game.canvasWidth
         this.y = 400
+        this.Image = <HTMLImageElement>document.getElementById('leven')
     }
 
     update():void {
@@ -30,9 +29,8 @@ class Life {
             this.alive = false
         }
         // Move
-        this.x -= this.hspeed
 
         // Draw
-        this.game.ctx.fillStyle = "#00FFFF"
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)    }
+        this.game.ctx.fillStyle = "#00FFFF" 
+        super.update()   }
 }

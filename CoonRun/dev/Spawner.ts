@@ -20,7 +20,7 @@ class Spawner {
     public cloudSpawnCD:number = 60
   
     public lifes:Array<Life> = [];
-    public lifeChance = 0
+    public lifeChance = 0.05
     public canSpawnLife:boolean = false
     public lifeSpawnCD:number = 1000
 

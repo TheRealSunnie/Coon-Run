@@ -71,8 +71,9 @@ class Player {
             this.y = this.ground-this.height
         }
 
-        this.game.ctx.fillStyle = "black"
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+
+        
+        
         this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height)
     }
     // Jumping and ducking *quack*

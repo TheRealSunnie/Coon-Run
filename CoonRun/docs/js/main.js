@@ -25,7 +25,6 @@ var basicObject = (function () {
             this.alive = false;
         }
         this.x -= this.hspeed;
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height);
     };
     return basicObject;
@@ -35,6 +34,8 @@ var Cloud = (function (_super) {
     function Cloud(game) {
         var _this = _super.call(this, game) || this;
         _this.Image = document.getElementById('wolk');
+        _this.width = 150;
+        _this.height = 75;
         _this.game = game;
         _this.x = _this.game.canvasWidth;
         _this.y = Math.floor(Math.random() * 150) + 5;
@@ -66,7 +67,7 @@ var Spawner = (function () {
         this.canSpawnCloud = false;
         this.cloudSpawnCD = 60;
         this.lifes = [];
-        this.lifeChance = 0;
+        this.lifeChance = 0.05;
         this.canSpawnLife = false;
         this.lifeSpawnCD = 1000;
         this.game = game;
@@ -223,10 +224,11 @@ var Game = (function () {
     function Game() {
         var _this = this;
         this.canvas = document.getElementById('cnvs');
+        this.image = document.getElementById('background');
         this.ctx = this.canvas.getContext("2d");
         this.canvasWidth = 1280;
         this.currentLevel = 0;
-        this.ground = 720;
+        this.ground = 650;
         this.maxLifes = 2;
         this.lifeCount = this.maxLifes;
         this.score = 0;
@@ -236,6 +238,7 @@ var Game = (function () {
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.fillRect(0, 0, 1280, 720);
+            _this.ctx.drawImage(_this.image, 0, 0, 1280, 720);
             _this.player.update();
             _this.Spawner.update();
             _this.levelObject.update();
@@ -267,25 +270,27 @@ var Bin = (function (_super) {
     __extends(Bin, _super);
     function Bin(game, type) {
         var _this = _super.call(this, game) || this;
-        _this.Image = document.getElementById('bin');
         _this.game = game;
         _this.hspeed = _this.game.objSpeed;
         _this.type = type;
         switch (_this.type) {
             case _this.game.Spawner.single:
-                _this.width = 50;
+                _this.width = 75;
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
+                _this.Image = document.getElementById('bin');
                 break;
             case _this.game.Spawner.double:
-                _this.width = 100;
+                _this.width = 150;
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
+                _this.Image = document.getElementById('bin2');
                 break;
             case _this.game.Spawner.triple:
                 _this.width = 150;
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
+                _this.Image = document.getElementById('bin3');
                 break;
         }
         _this.x = _this.game.canvasWidth;
@@ -385,15 +390,17 @@ var Levels = (function () {
     };
     return Levels;
 }());
-var Life = (function () {
+var Life = (function (_super) {
+    __extends(Life, _super);
     function Life(game) {
-        this.width = 50;
-        this.height = 50;
-        this.alive = true;
-        this.game = game;
-        this.hspeed = this.game.objSpeed;
-        this.x = this.game.canvasWidth;
-        this.y = 400;
+        var _this = _super.call(this, game) || this;
+        _this.alive = true;
+        _this.game = game;
+        _this.hspeed = _this.game.objSpeed;
+        _this.x = _this.game.canvasWidth;
+        _this.y = 400;
+        _this.Image = document.getElementById('leven');
+        return _this;
     }
     Life.prototype.update = function () {
         this.hspeed = this.game.objSpeed;
@@ -404,12 +411,11 @@ var Life = (function () {
         if (this.x < 0 - this.width) {
             this.alive = false;
         }
-        this.x -= this.hspeed;
         this.game.ctx.fillStyle = "#00FFFF";
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
+        _super.prototype.update.call(this);
     };
     return Life;
-}());
+}(basicObject));
 var Player = (function () {
     function Player(game) {
         var _this = this;
@@ -469,8 +475,6 @@ var Player = (function () {
         if (this.y > this.ground - this.height) {
             this.y = this.ground - this.height;
         }
-        this.game.ctx.fillStyle = "black";
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height);
     };
     Player.prototype.onKeyDown = function (e) {

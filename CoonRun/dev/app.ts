@@ -1,12 +1,13 @@
  class Game { // Declare all the stuff
     private canvas:HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('cnvs')
+    public image:HTMLImageElement = <HTMLImageElement>document.getElementById('background')
     public ctx:CanvasRenderingContext2D = this.canvas.getContext("2d")!
     public canvasWidth:number = 1280
     public Spawner:Spawner
     public levelObject: Levels
     public currentLevel:number = 0
     private player:Player
-    public ground:number = 720
+    public ground:number = 650
     public maxLifes:number = 2
     public lifeCount:number = this.maxLifes
     public score:number = 0
@@ -26,7 +27,8 @@
     gameLoop = ():void => {
         // Draw setup
         this.ctx.fillStyle = "#D3D3D3" // Color
-        this.ctx.fillRect(0, 0, 1280, 720) // Clears canvas
+        this.ctx.fillRect(0, 0, 1280, 720)
+        this.ctx.drawImage(this.image, 0, 0, 1280, 720) // Clears canvas
 
         // Update stuff
         this.player.update()
