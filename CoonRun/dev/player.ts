@@ -1,10 +1,11 @@
 class Player {
 
     public playerImage: HTMLImageElement = <HTMLImageElement>document.getElementById('player')
-
-    public width:number = 150
-    public height:number = 200
-    public x:number = 15
+    public imageWidth:number= 150
+    public imageHeight:number= 200
+    public width:number = 100
+    public height:number = 150
+    public x:number = 100
     public y:number
     private game:Game
     public ground:number
@@ -74,7 +75,7 @@ class Player {
 
         
         
-        this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height)
+        this.game.ctx.drawImage(this.playerImage, this.x-50, this.y-30, this.imageWidth, this.imageHeight)
     }
     // Jumping and ducking *quack*
 

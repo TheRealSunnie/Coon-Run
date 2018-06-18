@@ -420,9 +420,11 @@ var Player = (function () {
     function Player(game) {
         var _this = this;
         this.playerImage = document.getElementById('player');
-        this.width = 150;
-        this.height = 200;
-        this.x = 15;
+        this.imageWidth = 150;
+        this.imageHeight = 200;
+        this.width = 100;
+        this.height = 150;
+        this.x = 100;
         this.jumping = false;
         this.vSpeed = 0;
         this.jumpSpeed = 30;
@@ -475,7 +477,7 @@ var Player = (function () {
         if (this.y > this.ground - this.height) {
             this.y = this.ground - this.height;
         }
-        this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height);
+        this.game.ctx.drawImage(this.playerImage, this.x - 50, this.y - 30, this.imageWidth, this.imageHeight);
     };
     Player.prototype.onKeyDown = function (e) {
         if (e.keyCode == this.jumpKey) {
