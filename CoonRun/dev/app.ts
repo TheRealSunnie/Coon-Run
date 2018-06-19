@@ -4,7 +4,6 @@
     public canvasWidth:number = 1280
     public Spawner:Spawner
     public levelObject: Levels
-    public currentLevel:number = 0
     private player:Player
     public ground:number = 720
     public maxLifes:number = 2
@@ -29,16 +28,16 @@
         this.ctx.fillRect(0, 0, 1280, 720) // Clears canvas
 
         // Update stuff
-        this.levelObject.update()
         this.player.update()
         this.Spawner.update()
+        this.levelObject.update()
 
         this.ctx.fillStyle = "black"
         this.ctx.font = "30px Arial"
         this.ctx.fillText(this.lifeCount + " levens", 150, 450)
-        this.ctx.fillText("Score: " + this.score, 50, 100)
+        this.ctx.fillText("Score: " + this.score + this.levelObject.currentLevel, 50, 200)
         // Proverb string
-        this.ctx.fillText(this.levelObject.currentString, this.canvasWidth/2, 100)
+        this.ctx.fillText(this.levelObject.currentString, this.canvasWidth/2, 200)
         this.ctx.stroke() // This draws all of the above
         // Next frame
         requestAnimationFrame(this.gameLoop)

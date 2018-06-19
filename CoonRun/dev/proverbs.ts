@@ -1,6 +1,12 @@
+
 class Proverbs {
 
     public list:{string: string, correct: string[], incorrect: string[]}[] = [
+        {
+            string: "",
+            correct: ["appel"],
+            incorrect: ["banaan"]
+        },
         {
             string: "De .. valt niet ver van de boom",
             correct: ["appel"],
@@ -32,8 +38,7 @@ class Proverbs {
             incorrect: ["hond"]
         },
     
-        /** boederij dieren */
-        /** test */ 
+        // boederij dieren
         {
             string: "Als er één ... over de dam is, volgen er meer",
             correct: ["schaap"],
@@ -49,7 +54,7 @@ class Proverbs {
             correct: ["koetjes en kalfjes"],
             incorrect: ["bloemetjes en bijtjes "]
         },
-        /** huisdieren */
+        // huisdieren
         {
             string: "De ... uit de boom kijken",
             correct: ["kat"],
@@ -65,7 +70,7 @@ class Proverbs {
             correct: ["vliegen"],
             incorrect: ["mier"]
         },
-        /** dierentuin dieren */
+        // dierentuin dieren
         {
             string: "...-tranen huilen",
             correct: ["Krokodillen"],

@@ -1,5 +1,8 @@
 class Player {
-    public width:number = 100
+
+    public playerImage: HTMLImageElement = <HTMLImageElement>document.getElementById('player')
+
+    public width:number = 150
     public height:number = 200
     public x:number = 15
     public y:number
@@ -17,6 +20,10 @@ class Player {
     private mReleased:boolean = false
     public sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('jump')
 
+    private jumpKey: number = 32
+    private duckKey:number = 40
+    private ducking: boolean = false
+
     constructor(game:Game) {
         //console.log("i am a player!")
         this.game = game
@@ -25,8 +32,8 @@ class Player {
         this.jumpHeight = this.ground-this.height - 250
         this.minJumpHeight = this.ground-this.height - 200
         // Checks for input
-        window.addEventListener("mousedown", () => this.pressed())
-        window.addEventListener("mouseup", () => this.released())
+        window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
+        window.addEventListener("keyup", (e:KeyboardEvent) => this.onKeyUp(e))
     }
 
     update():void {
@@ -66,21 +73,40 @@ class Player {
 
         this.game.ctx.fillStyle = "black"
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+        this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height)
     }
-    // Changes the input variables
-    pressed():void {
-        console.log("pressed")
-        this.mPressed = true
-        this.mReleased = false
-        this.sound.play();
-        if(this.game.dead || this.game.currentLevel == 0) {
-            this.game.levelObject.restart()
+    // Jumping and ducking *quack*
+
+    private onKeyDown(e: KeyboardEvent):void {
+        if (e.keyCode == this.jumpKey) {
+            if (this.game.dead || this.game.levelObject.currentLevel == 0) {
+                this.game.levelObject.restart()
+            } else if (!this.ducking) {
+                this.mPressed = true
+                this.mReleased = false
+                this.sound.play();
+            }
+        }
+
+        if (!this.game.dead && this.game.levelObject.currentLevel != 0) {
+            if (e.keyCode == this.duckKey && !this.ducking && this.grounded) {
+                this.height /=2
+                this.y += this.height
+                this.ducking = true
+            }
         }
     }
+ 
+    private onKeyUp(e: KeyboardEvent):void {
+        if (e.keyCode == this.jumpKey) {
+            this.mPressed = false
+            this.mReleased = true
+        }
 
-    released():void {
-        console.log("release");
-        this.mPressed = false
-        this.mReleased = true
+        if (e.keyCode == this.duckKey && this.ducking) {
+            this.y -= this.height
+            this.height *= 2
+            this.ducking = false
+        }
     }
 }
