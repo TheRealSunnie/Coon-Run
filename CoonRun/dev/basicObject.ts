@@ -27,7 +27,7 @@ class basicObject {
         this.x -= this.hspeed
 
         // Draw
-        //this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
 
         this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height)
     }

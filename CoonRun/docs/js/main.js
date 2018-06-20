@@ -25,6 +25,7 @@ var basicObject = (function () {
             this.alive = false;
         }
         this.x -= this.hspeed;
+        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height);
     };
     return basicObject;
@@ -267,10 +268,17 @@ var Game = (function () {
         this.objSpeed = this.startObjSpeed;
         this.bgSpeed = 1;
         this.cloudSpeed = .5;
+        this.sun = document.getElementById('sun');
+        this.moon = document.getElementById('moon');
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
-            _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
+            if (!_this.levelObject.levels[_this.levelObject.currentLevel].night) {
+                _this.ctx.drawImage(_this.sun, 150, 50, 150, 150);
+            }
+            else {
+                _this.ctx.drawImage(_this.moon, 150, 50, 150, 150);
+            }
             _this.Spawner.update();
             _this.levelObject.update();
             _this.player.update();
@@ -327,38 +335,38 @@ var BgObject = (function (_super) {
             {
                 level: 0,
                 sprite: document.getElementById('lantern'),
-                width: 31,
-                height: 150
+                width: 50,
+                height: 240
             },
             {
                 level: 0,
                 sprite: document.getElementById('carrots'),
-                width: 123,
-                height: 80
+                width: 200,
+                height: 130
             },
             {
                 level: 0,
                 sprite: document.getElementById('corn'),
-                width: 100,
-                height: 87
+                width: 200,
+                height: 230
             },
             {
                 level: 0,
                 sprite: document.getElementById('flower'),
-                width: 124,
-                height: 100
+                width: 210,
+                height: 170
             },
             {
                 level: 0,
                 sprite: document.getElementById('bookshelf'),
-                width: 47,
-                height: 150
+                width: 150,
+                height: 300
             },
             {
                 level: 0,
                 sprite: document.getElementById('chouch'),
-                width: 130,
-                height: 80
+                width: 300,
+                height: 150
             },
             {
                 level: 0,
@@ -369,8 +377,8 @@ var BgObject = (function (_super) {
             {
                 level: 0,
                 sprite: document.getElementById('zebra'),
-                width: 250,
-                height: 141
+                width: 256,
+                height: 144
             },
             {
                 level: 0,
@@ -402,6 +410,7 @@ var BgObject = (function (_super) {
         return _this;
     }
     BgObject.prototype.update = function () {
+        this.game.ctx.fillStyle = "white";
         _super.prototype.update.call(this);
     };
     return BgObject;
