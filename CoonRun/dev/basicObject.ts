@@ -8,6 +8,7 @@ class basicObject {
     protected hspeed:number = 0
     protected game:Game
     protected Image: HTMLImageElement = <HTMLImageElement>document.getElementById('bin1')
+    protected Sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('Jump')
 
     constructor(game:Game) {
         this.game = game
