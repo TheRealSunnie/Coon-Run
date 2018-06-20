@@ -44,6 +44,12 @@ var Cloud = (function (_super) {
         return _this;
     }
     Cloud.prototype.update = function () {
+        if (!this.game.levelObject.levels[this.game.levelObject.currentLevel].night) {
+            this.Image = document.getElementById('wolk');
+        }
+        else {
+            this.Image = document.getElementById('ufo');
+        }
         this.game.ctx.fillStyle = "white";
         _super.prototype.update.call(this);
     };
@@ -54,26 +60,62 @@ var Spawner = (function () {
         this.bins = [];
         this.binChance = 0.0;
         this.canSpawnBin = false;
-        this.binSpawnCD = 60;
+        this.binSpawnMaxCD = 60;
+        this.binSpawnCD = this.binSpawnMaxCD;
         this.single = 0;
         this.double = 1;
         this.triple = 2;
         this.words = [];
         this.wordChance = 0.05;
         this.canSpawnWord = false;
-        this.wordSpawnCD = 300;
-        this.clouds = [];
-        this.cloudChance = 0.0;
-        this.canSpawnCloud = false;
-        this.cloudSpawnCD = 60;
+        this.wordSpawnMaxCD = 300;
+        this.wordSpawnCD = this.wordSpawnMaxCD;
         this.lifes = [];
         this.lifeChance = 0;
         this.canSpawnLife = false;
-        this.lifeSpawnCD = 1000;
+        this.lifeSpawnMaxCD = 100;
+        this.lifeSpawnCD = this.lifeSpawnMaxCD;
+        this.trash = [];
+        this.trashChance = 0;
+        this.canSpawntrash = false;
+        this.trashSpawnMaxCD = 1000;
+        this.trashSpawnCD = this.trashSpawnMaxCD;
+        this.clouds = [];
+        this.cloudChance = 0.1;
+        this.canSpawnCloud = false;
+        this.cloudSpawnMaxCD = 1500;
+        this.cloudSpawnCD = 60;
+        this.bgObject = [];
+        this.bgChance = 0.1;
+        this.canSpawnBg = false;
+        this.bgSpawnMaxCD = 1000;
+        this.bgCD = 60;
         this.game = game;
     }
     Spawner.prototype.update = function () {
         if (!this.game.dead && this.game.levelObject.currentLevel != 0) {
+            if (this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
+                this.cloudSpawnCD--;
+            }
+            else {
+                this.cloudSpawnCD = this.cloudSpawnMaxCD;
+                this.canSpawnCloud = true;
+            }
+            if (Math.random() < this.cloudChance && this.canSpawnCloud) {
+                this.clouds.push(new Cloud(this.game));
+                this.canSpawnCloud = false;
+            }
+            if (this.bgCD > 0 && !this.canSpawnBg) {
+                this.bgCD--;
+            }
+            else {
+                this.bgCD = this.bgSpawnMaxCD;
+                this.canSpawnBg = true;
+            }
+            if (Math.random() < this.bgChance && this.canSpawnBg) {
+                this.bgObject.push(new BgObject(this.game));
+                this.canSpawnBg = false;
+            }
             if (this.binSpawnCD > 0 && !this.canSpawnBin) {
                 this.binSpawnCD--;
             }
@@ -116,17 +158,6 @@ var Spawner = (function () {
                 this.words.push(new Word(this.game, name_1, fake));
                 this.canSpawnWord = false;
             }
-            if (this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
-                this.cloudSpawnCD--;
-            }
-            else {
-                this.cloudSpawnCD = 60;
-                this.canSpawnCloud = true;
-            }
-            if (Math.random() < this.cloudChance && this.canSpawnCloud) {
-                this.clouds.push(new Cloud(this.game));
-                this.canSpawnCloud = false;
-            }
             if (this.lifeSpawnCD > 0 && !this.canSpawnLife) {
                 this.lifeSpawnCD--;
             }
@@ -138,6 +169,28 @@ var Spawner = (function () {
                 this.lifes.push(new Life(this.game));
                 this.canSpawnLife = false;
             }
+        }
+        var deleteCloud = [];
+        for (var i = 0; i < this.clouds.length; i++) {
+            this.clouds[i].update();
+            if (!this.clouds[i].alive) {
+                deleteCloud.push(i);
+            }
+        }
+        deleteCloud.reverse();
+        for (var i in deleteCloud) {
+            this.clouds.splice(parseInt(i), 1);
+        }
+        var deleteBG = [];
+        for (var i = 0; i < this.bgObject.length; i++) {
+            this.bgObject[i].update();
+            if (!this.bgObject[i].alive) {
+                deleteBG.push(i);
+            }
+        }
+        deleteBG.reverse();
+        for (var i in deleteBG) {
+            this.bgObject.splice(parseInt(i), 1);
         }
         var deleteBin = [];
         for (var i = 0; i < this.bins.length; i++) {
@@ -160,17 +213,6 @@ var Spawner = (function () {
         deleteWord.reverse();
         for (var i in deleteWord) {
             this.words.splice(parseInt(i), 1);
-        }
-        var deleteCloud = [];
-        for (var i = 0; i < this.clouds.length; i++) {
-            this.clouds[i].update();
-            if (!this.clouds[i].alive) {
-                deleteCloud.push(i);
-            }
-        }
-        deleteCloud.reverse();
-        for (var i in deleteCloud) {
-            this.clouds.splice(parseInt(i), 1);
         }
         var deleteLife = [];
         for (var i = 0; i < this.lifes.length; i++) {
@@ -224,10 +266,11 @@ var Game = (function () {
         this.dead = false;
         this.startObjSpeed = 12;
         this.objSpeed = this.startObjSpeed;
-        this.bgSpeed = 3;
-        this.cloudSpeed = 1;
+        this.bgSpeed = 1;
+        this.cloudSpeed = .5;
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
+            _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
             _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
             _this.Spawner.update();
             _this.levelObject.update();
@@ -354,7 +397,7 @@ var BgObject = (function (_super) {
         _this.Image = i.sprite;
         _this.game = game;
         _this.x = _this.game.canvasWidth;
-        _this.y = Math.floor(Math.random() * 100) + 5;
+        _this.y = _this.game.ground - _this.height - 35;
         _this.hspeed = _this.game.bgSpeed;
         return _this;
     }
@@ -850,6 +893,8 @@ var Proverbs = (function () {
     }
     return Proverbs;
 }());
+adjgkl;
+as;
 var Test = (function () {
     function Test() {
         this.mijnvalue = true;

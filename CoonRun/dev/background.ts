@@ -90,7 +90,7 @@ class BgObject extends basicObject {
 
         this.game = game
         this.x = this.game.canvasWidth
-        this.y = Math.floor(Math.random()*100) + 5
+        this.y = this.game.ground - this.height - 35
         this.hspeed = this.game.bgSpeed
     }
 

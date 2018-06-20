@@ -13,8 +13,8 @@
     public dead:boolean = false
     public startObjSpeed:number = 12
     public objSpeed:number = this.startObjSpeed
-    public bgSpeed:number = 3
-    public cloudSpeed:number = 1
+    public bgSpeed:number = 1
+    public cloudSpeed:number = .5
 
     constructor() { // Load in all the stuff
         //console.log("new game created!")
@@ -28,6 +28,7 @@
     gameLoop = ():void => {
         // Draw setup
         this.ctx.fillStyle = "#D3D3D3" // Color
+        this.ctx.drawImage(this.levelObject.levelSprite, 0, 0, 1280, 720) // Clears canvas
         this.ctx.drawImage(this.levelObject.levelSprite, 0, 0, 1280, 720) // Clears canvas
 
         // Update stuff
