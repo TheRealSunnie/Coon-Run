@@ -15,7 +15,7 @@ class Bin extends basicObject {
         super(game)
 
         this.Image = <HTMLImageElement>document.getElementById('bin1')
-
+        this.Sound = <HTMLAudioElement>document.getElementById('hit')
         this.game = game
         this.hspeed = this.game.objSpeed
         this.type = type
@@ -60,6 +60,7 @@ class Bin extends basicObject {
             this.alive = false
             this.game.lifeCount--
             this.game.player.vulnerable = false
+            this.Sound.play()
         }
         
         // Draw

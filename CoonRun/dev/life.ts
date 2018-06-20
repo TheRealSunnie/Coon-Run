@@ -11,6 +11,7 @@ class Life extends basicObject {
         this.width = 63
         this.height = 63
         this.Image = <HTMLImageElement>document.getElementById('life')
+        this.Sound = <HTMLAudioElement>document.getElementById('Life_pickup')
     }
 
     update():void {
@@ -19,7 +20,7 @@ class Life extends basicObject {
         if (this.game.collision(this)) { 
             this.alive = false
             this.game.lifeCount++
-
+            this.Sound.play()
         }
 
         // Draw

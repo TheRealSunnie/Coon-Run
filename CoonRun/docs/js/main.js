@@ -16,6 +16,7 @@ var basicObject = (function () {
         this.alive = true;
         this.hspeed = 0;
         this.Image = document.getElementById('bin1');
+        this.Sound = document.getElementById('Jump');
         this.game = game;
         this.x = this.game.canvasWidth;
         this.y = this.game.ground - this.height;
@@ -424,6 +425,7 @@ var Bin = (function (_super) {
         _this.kmedium = document.getElementById('kawaiibin2');
         _this.klarge = document.getElementById('kawaiibin3');
         _this.Image = document.getElementById('bin1');
+        _this.Sound = document.getElementById('hit');
         _this.game = game;
         _this.hspeed = _this.game.objSpeed;
         _this.type = type;
@@ -466,6 +468,7 @@ var Bin = (function (_super) {
             this.alive = false;
             this.game.lifeCount--;
             this.game.player.vulnerable = false;
+            this.Sound.play();
         }
         this.game.ctx.fillStyle = "black";
         _super.prototype.update.call(this);
@@ -650,6 +653,7 @@ var Life = (function (_super) {
         _this.width = 63;
         _this.height = 63;
         _this.Image = document.getElementById('life');
+        _this.Sound = document.getElementById('Life_pickup');
         return _this;
     }
     Life.prototype.update = function () {
@@ -657,6 +661,7 @@ var Life = (function (_super) {
         if (this.game.collision(this)) {
             this.alive = false;
             this.game.lifeCount++;
+            this.Sound.play();
         }
         this.game.ctx.fillStyle = "#00FFFF";
         _super.prototype.update.call(this);
@@ -917,6 +922,8 @@ var Word = (function () {
         this.fake = false;
         this.alive = true;
         this.Image = document.getElementById('appel');
+        this.Sound1 = document.getElementById('Correct_SW');
+        this.Sound2 = document.getElementById('False_SW');
         this.game = game;
         this.x = this.game.canvasWidth;
         this.y = this.game.ground - this.height - 250;
@@ -937,9 +944,11 @@ var Word = (function () {
             if (!this.fake) {
                 this.game.levelObject.proverbProgress.splice(this.index, 1);
                 this.game.score += 1000;
+                this.Sound1.play();
             }
             else {
                 this.game.score -= 1000;
+                this.Sound2.play();
                 if (this.game.score < 0) {
                     this.game.score = 0;
                 }
