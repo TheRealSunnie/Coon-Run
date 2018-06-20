@@ -285,8 +285,9 @@ var Game = (function () {
             _this.ctx.fillStyle = "black";
             _this.ctx.font = "32px VT323";
             _this.ctx.textAlign = "start";
-            _this.ctx.fillText(_this.lifeCount + " levens", 150, 450);
-            _this.ctx.fillText("Score: " + _this.score + _this.highscore + _this.levelObject.currentLevel, 50, 200);
+            _this.ctx.fillText(_this.lifeCount + " levens", 1100, 150);
+            _this.ctx.fillText("High Score: " + _this.highscore + _this.levelObject.currentLevel, 50, 150);
+            _this.ctx.fillText("Score: " + _this.score + _this.levelObject.currentLevel, 50, 180);
             _this.ctx.textAlign = "center";
             _this.ctx.font = "48px VT323";
             _this.ctx.fillText(_this.levelObject.currentString, _this.canvasWidth / 2, 100);

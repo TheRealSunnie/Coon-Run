@@ -50,8 +50,9 @@
         this.ctx.font = "32px VT323"
         // Scores and lifes
         this.ctx.textAlign="start"
-        this.ctx.fillText(this.lifeCount + " levens", 150, 450)
-        this.ctx.fillText("Score: " + this.score + this.highscore + this.levelObject.currentLevel, 50, 200)
+        this.ctx.fillText(this.lifeCount + " levens", 1100, 150)//lifes
+        this.ctx.fillText("High Score: " + this.highscore + this.levelObject.currentLevel, 50, 150)
+        this.ctx.fillText("Score: " + this.score + this.levelObject.currentLevel, 50, 180)
         // Proverb string
         this.ctx.textAlign="center"
         this.ctx.font = "48px VT323"
