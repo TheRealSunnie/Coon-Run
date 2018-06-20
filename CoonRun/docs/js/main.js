@@ -25,7 +25,6 @@ var basicObject = (function () {
             this.alive = false;
         }
         this.x -= this.hspeed;
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height);
     };
     return basicObject;
@@ -321,6 +320,99 @@ var Game = (function () {
     return Game;
 }());
 window.addEventListener("load", function () { return new Game(); });
+var BgObject = (function (_super) {
+    __extends(BgObject, _super);
+    function BgObject(game) {
+        var _this = _super.call(this, game) || this;
+        _this.index = [
+            {
+                level: 0,
+                sprite: document.getElementById('bench'),
+                width: 75,
+                height: 58
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('lantern'),
+                width: 31,
+                height: 150
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('carrots'),
+                width: 123,
+                height: 80
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('corn'),
+                width: 100,
+                height: 87
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('flower'),
+                width: 124,
+                height: 100
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('bookshelf'),
+                width: 47,
+                height: 150
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('chouch'),
+                width: 130,
+                height: 80
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('signzoo'),
+                width: 132,
+                height: 126
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('zebra'),
+                width: 250,
+                height: 141
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('zoosign'),
+                width: 192,
+                height: 108
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('kawaiihearts'),
+                width: 90,
+                height: 90
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('kawaiirainbow'),
+                width: 140,
+                height: 80
+            },
+        ];
+        var i = _this.index[_this.game.levelObject.levels[_this.game.levelObject.currentLevel].bgArray[Math.floor(Math.random() * _this.game.levelObject.levels[_this.game.levelObject.currentLevel].bgArray.length)]];
+        _this.height = i.height;
+        _this.width = i.width;
+        _this.Image = i.sprite;
+        _this.game = game;
+        _this.x = _this.game.canvasWidth;
+        _this.y = _this.game.ground - _this.height - 35;
+        _this.hspeed = _this.game.bgSpeed;
+        return _this;
+    }
+    BgObject.prototype.update = function () {
+        _super.prototype.update.call(this);
+    };
+    return BgObject;
+}(basicObject));
 var Bin = (function (_super) {
     __extends(Bin, _super);
     function Bin(game, type) {
