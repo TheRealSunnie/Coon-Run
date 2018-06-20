@@ -25,7 +25,6 @@ var basicObject = (function () {
             this.alive = false;
         }
         this.x -= this.hspeed;
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height);
     };
     return basicObject;
@@ -327,38 +326,38 @@ var BgObject = (function (_super) {
             {
                 level: 0,
                 sprite: document.getElementById('lantern'),
-                width: 50,
-                height: 240
+                width: 31,
+                height: 150
             },
             {
                 level: 0,
                 sprite: document.getElementById('carrots'),
-                width: 200,
-                height: 130
+                width: 123,
+                height: 80
             },
             {
                 level: 0,
                 sprite: document.getElementById('corn'),
-                width: 200,
-                height: 230
+                width: 100,
+                height: 87
             },
             {
                 level: 0,
                 sprite: document.getElementById('flower'),
-                width: 210,
-                height: 170
+                width: 124,
+                height: 100
             },
             {
                 level: 0,
                 sprite: document.getElementById('bookshelf'),
-                width: 150,
-                height: 300
+                width: 47,
+                height: 150
             },
             {
                 level: 0,
                 sprite: document.getElementById('chouch'),
-                width: 300,
-                height: 150
+                width: 130,
+                height: 80
             },
             {
                 level: 0,
@@ -369,8 +368,8 @@ var BgObject = (function (_super) {
             {
                 level: 0,
                 sprite: document.getElementById('zebra'),
-                width: 256,
-                height: 144
+                width: 250,
+                height: 141
             },
             {
                 level: 0,
@@ -402,7 +401,6 @@ var BgObject = (function (_super) {
         return _this;
     }
     BgObject.prototype.update = function () {
-        this.game.ctx.fillStyle = "white";
         _super.prototype.update.call(this);
     };
     return BgObject;
