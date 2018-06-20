@@ -11,8 +11,6 @@ class Word {
     public alive:boolean = true
 
     private Image: HTMLImageElement = <HTMLImageElement>document.getElementById('appel')
-    private Sound1: HTMLAudioElement = <HTMLAudioElement>document.getElementById('Correct_SW')
-    private Sound2: HTMLAudioElement = <HTMLAudioElement>document.getElementById('False_SW')
 
     constructor (game:Game, index:number, fake:boolean, height:number) { 
         this.game = game
@@ -35,16 +33,11 @@ class Word {
             if(!this.fake) { 
                 this.game.levelObject.proverbProgress.splice(this.index, 1)  
                 this.game.score += 1000  
-<<<<<<< HEAD
                 let sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('correctSnd')
                 sound.play()
-=======
-                this.Sound1.play()
->>>>>>> 13bc8c698b1d4efcf3f0846b430c7050c68baf80
             } else {
                 // Loses points
                 this.game.score -= 1000  
-                this.Sound2.play()
                 if (this.game.score < 0) {
                     this.game.score = 0
                 }

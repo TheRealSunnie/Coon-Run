@@ -1042,8 +1042,6 @@ var Word = (function () {
         this.fake = false;
         this.alive = true;
         this.Image = document.getElementById('appel');
-        this.Sound1 = document.getElementById('Correct_SW');
-        this.Sound2 = document.getElementById('False_SW');
         this.game = game;
         this.x = this.game.canvasWidth;
         this.y = height;
@@ -1069,7 +1067,6 @@ var Word = (function () {
             }
             else {
                 this.game.score -= 1000;
-                this.Sound2.play();
                 if (this.game.score < 0) {
                     this.game.score = 0;
                 }
