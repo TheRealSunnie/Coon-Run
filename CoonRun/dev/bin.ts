@@ -25,7 +25,7 @@ class Bin extends basicObject {
                 this.height = 125
                 this.y = this.game.ground-this.height
                 this.Image = this.small
-                if (this.game.levelObject.currentLevel == 4) {
+                if (this.game.levelObject.currentLevel == 7) {
                     this.Image = this.ksmall
                 }
                 break;
@@ -34,7 +34,7 @@ class Bin extends basicObject {
                 this.height = 125
                 this.y = this.game.ground-this.height
                 this.Image = this.medium
-                if (this.game.levelObject.currentLevel == 4) {
+                if (this.game.levelObject.currentLevel == 7) {
                     this.Image = this.kmedium
                 }
                 break;
@@ -43,7 +43,7 @@ class Bin extends basicObject {
                 this.height = 125
                 this.y = this.game.ground-this.height
                 this.Image = this.large
-                if (this.game.levelObject.currentLevel == 4) {
+                if (this.game.levelObject.currentLevel == 7) {
                     this.Image = this.klarge
                 }
                 break;
@@ -60,6 +60,17 @@ class Bin extends basicObject {
             this.alive = false
             this.game.lifeCount--
             this.game.player.vulnerable = false
+            let sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('hitSnd')
+            sound.play()
+            if (this.game.lifeCount < 1) {
+            this.game.levelObject.levelMusic.pause()
+            this.game.levelObject.levelMusic.currentTime = 0
+
+            let sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('deathSnd')
+            sound.play()
+            this.game.levelObject.levelMusic = <HTMLAudioElement>document.getElementById('gameoverSong')
+            this.game.levelObject.levelMusic.play()
+            }
         }
         
         // Draw

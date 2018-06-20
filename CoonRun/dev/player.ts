@@ -132,7 +132,7 @@ class Player {
         }
 
         this.game.ctx.fillStyle = "black"
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+        //this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
         this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height)
     }
     // Jumping and ducking *quack*
@@ -153,6 +153,8 @@ class Player {
                 this.height /=2
                 this.y += this.height
                 this.ducking = true
+                let duckSound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('duckSnd')
+                duckSound.play()
             }
         }
     }

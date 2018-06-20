@@ -96,7 +96,7 @@ class BgObject extends basicObject {
 
 
     update():void {
-
+        this.hspeed = this.game.cloudSpeed
         // Draw
         //this.game.ctx.fillStyle = "white"
         super.update()

@@ -2,7 +2,7 @@ class Levels {
 
     private game:Game
     public proverbs:Proverbs = new Proverbs()
-    public levels:{level:number, sprite:HTMLImageElement, maxSpeed:number, acceleration:number, proverbArray:Array<number>, bgArray:Array<number>, night:boolean}[]
+    public levels:{level:number, sprite:HTMLImageElement, maxSpeed:number, acceleration:number, binChance:number, trashChance:number, wordChance:number, lifeChance:number, proverbArray:Array<number>, bgArray:Array<number>, night:boolean, music:HTMLAudioElement}[]
 
     public currentLevel:number = 0
     public currentProverb:number = 0
@@ -19,7 +19,9 @@ class Levels {
     public levelBreak:boolean = false
 
     private nightOver:boolean = false
-    private nightCountdown:number = 600
+    private nightCountdown:number = 900
+
+    public levelMusic:HTMLAudioElement
 
     constructor(game:Game) {
         this.game = game
@@ -33,87 +35,134 @@ class Levels {
                 acceleration: 0,
 
                 // Bin chances
+                binChance: 0,
+                trashChance: 0,
+                wordChance: 0,
+                lifeChance: 0,
 
                 proverbArray: [0],
                 bgArray: [0,1],
-                night: false
+                night: false,
+                music: <HTMLAudioElement>document.getElementById("dag")
             },
             {
                 level: 1,
                 sprite: <HTMLImageElement>document.getElementById('level1'),
 
-                maxSpeed: 13,
+                maxSpeed: 15,
                 acceleration: 0.001,
-                // Bin chances
+                // chances
+                binChance: .4,
+                trashChance: .5,
+                wordChance: .97,
+                lifeChance: 1,
+
                 proverbArray: [1,2,3,4],
                 bgArray: [2,3,4],
-                night: false
+                night: false,
+                music: <HTMLAudioElement>document.getElementById("dag")
             },
             {
                 level: 2,
                 sprite: <HTMLImageElement>document.getElementById('level0'),
 
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 16,
+                acceleration: 0.0015,
                 // Bin chances
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
+
                 proverbArray: [0],
                 bgArray: [0,1],
-                night: true
+                night: true,
+                music: <HTMLAudioElement>document.getElementById("nacht")
             },
             {
                 level: 3,
                 sprite: <HTMLImageElement>document.getElementById('level2'),
 
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 17,
+                acceleration: 0.002,
                 // Bin chances
+                binChance: .4,
+                trashChance: .5,
+                wordChance: .97,
+                lifeChance: 1,
+
                 proverbArray: [5,6,7,8,9,10],
                 bgArray: [5,6],
-                night: false
+                night: false,
+                music: <HTMLAudioElement>document.getElementById("dag")
             },
             {
                 level: 4,
                 sprite: <HTMLImageElement>document.getElementById('level0'),
 
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 18,
+                acceleration: 0.002,
                 // Bin chances
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
+
                 proverbArray: [0],
                 bgArray: [0,1],
-                night: true
+                night: true,
+                music: <HTMLAudioElement>document.getElementById("nacht")
             },
             {
                 level: 5,
                 sprite: <HTMLImageElement>document.getElementById('level3'),
 
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 19,
+                acceleration: 0.0025,
                 // Bin chances
+                binChance: .4,
+                trashChance: .5,
+                wordChance: .97,
+                lifeChance: 1,
+
                 proverbArray: [11,12,13,14,15],
                 bgArray: [7,8,9],
-                night: false
+                night: false,
+                music: <HTMLAudioElement>document.getElementById("dag")
             },
             {
                 level: 6,
                 sprite: <HTMLImageElement>document.getElementById('level0'),
 
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 20,
+                acceleration: 0.0025,
                 // Bin chances
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
+
                 proverbArray: [0],
                 bgArray: [0,1],
-                night: true
+                night: true,
+                music: <HTMLAudioElement>document.getElementById("nacht")
             },
             {
                 level: 7,
                 sprite: <HTMLImageElement>document.getElementById('level4'),
 
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 21,
+                acceleration: 0.003,
                 // Bin chances
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
+
                 proverbArray: [0],
                 bgArray: [10,11],
-                night: false
+                night: false,
+                music: <HTMLAudioElement>document.getElementById("kawaiisong")
             },
             
 
@@ -121,7 +170,7 @@ class Levels {
 
         this.maxLevel = this.levels.length-1
         this.levelSprite = this.levels[this.currentLevel].sprite
-
+        this.levelMusic = this.levels[this.currentLevel].music
         this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
         this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice()
         this.currentString = this.proverbs.list[this.currentProverb].string
@@ -152,6 +201,10 @@ class Levels {
         }
 
         if (this.levelBreak) {
+            this.game.Spawner.binChance = 0
+            this.game.Spawner.trashChance = 0
+            this.game.Spawner.wordChance = 0
+            this.game.Spawner.lifeChance = 0
             if (this.levelCountdown > 0) {
                 this.levelCountdown--
             }
@@ -180,6 +233,12 @@ class Levels {
 
         if (this.game.dead) {
             this.currentLevel = 0
+            this.game.bgSpeed = 0
+            this.game.cloudSpeed = 0
+            this.game.Spawner.binChance = 0
+            this.game.Spawner.trashChance = 0
+            this.game.Spawner.wordChance = 0
+            this.game.Spawner.lifeChance = 0
         }
 
         // Control speed
@@ -199,6 +258,8 @@ class Levels {
         this.game.lifeCount = this.game.startingLifes
         this.game.objSpeed = this.game.startObjSpeed
         this.game.score = 0
+        this.game.bgSpeed = 1
+        this.game.cloudSpeed = .5
     }
 
     // Gets the random proverb and resets the proverbprogress with a new correct array and updates the string
@@ -218,8 +279,16 @@ class Levels {
      }
 
      switchLevel():void {
+        this.levelMusic.pause()
+        this.levelMusic.currentTime = 0
         this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
         this.levelSprite = this.levels[this.currentLevel].sprite
         this.switchProverb()
+        this.game.Spawner.binChance = this.levels[this.currentLevel].binChance
+        this.game.Spawner.trashChance = this.levels[this.currentLevel].trashChance
+        this.game.Spawner.wordChance = this.levels[this.currentLevel].wordChance
+        this.game.Spawner.lifeChance = this.levels[this.currentLevel].lifeChance
+        this.levelMusic = this.levels[this.currentLevel].music
+        this.levelMusic.play()
      }
 }

@@ -1,7 +1,7 @@
 class Word {
 
-    public width:number = 53
-    public height:number = 53
+    public width:number = 75
+    public height:number = 75
     public x:number
     public y:number
     public hspeed:number
@@ -12,10 +12,10 @@ class Word {
 
     private Image: HTMLImageElement = <HTMLImageElement>document.getElementById('appel')
 
-    constructor (game:Game, index:number, fake:boolean) { 
+    constructor (game:Game, index:number, fake:boolean, height:number) { 
         this.game = game
         this.x = this.game.canvasWidth
-        this.y = this.game.ground-this.height - 250
+        this.y = height
         this.hspeed = this.game.objSpeed
         this.fake = fake
         this.index = index
@@ -33,12 +33,16 @@ class Word {
             if(!this.fake) { 
                 this.game.levelObject.proverbProgress.splice(this.index, 1)  
                 this.game.score += 1000  
+                let sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('correctSnd')
+                sound.play()
             } else {
                 // Loses points
                 this.game.score -= 1000  
                 if (this.game.score < 0) {
                     this.game.score = 0
                 }
+                let sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('incorrectSnd')
+                sound.play()
             }
         }
         if (this.x < 0-this.width) { 
@@ -48,7 +52,7 @@ class Word {
 
         // Draw
         if (this.fake) this.game.ctx.fillStyle = "red"; else this.game.ctx.fillStyle = "green"
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+        //this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
         this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height)
     }
 }

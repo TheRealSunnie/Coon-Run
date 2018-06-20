@@ -2,12 +2,12 @@
 
 class Life extends basicObject {
 
-    constructor (game:Game) { // Get game, ground height, canvas width, moving speed and type
+    constructor (game:Game, height:number) { // Get game, ground height, canvas width, moving speed and type
         super(game)
         this.game = game
         this.hspeed = this.game.objSpeed
         this.x = this.game.canvasWidth
-        this.y = this.game.ground
+        this.y = height
         this.width = 63
         this.height = 63
         this.Image = <HTMLImageElement>document.getElementById('life')
@@ -19,7 +19,8 @@ class Life extends basicObject {
         if (this.game.collision(this)) { 
             this.alive = false
             this.game.lifeCount++
-
+            let sound:HTMLAudioElement = <HTMLAudioElement>document.getElementById('lifeSnd')
+            sound.play()
         }
 
         // Draw

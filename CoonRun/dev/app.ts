@@ -6,7 +6,7 @@
     public levelObject: Levels
     public player:Player
     public ground:number = 650
-    public startingLifes:number = 2
+    public startingLifes:number = 1
     public lifeCount:number = this.startingLifes
     public score:number = 0
     private highscore:number = 0
@@ -17,6 +17,7 @@
     public cloudSpeed:number = .5
     private sun:HTMLImageElement = <HTMLImageElement>document.getElementById('sun')
     private moon:HTMLImageElement = <HTMLImageElement>document.getElementById('moon')
+    private life:HTMLImageElement = <HTMLImageElement>document.getElementById('life')
 
     constructor() { // Load in all the stuff
         //console.log("new game created!")
@@ -38,6 +39,7 @@
         }
 
         // Update stuff
+        
         this.Spawner.update()
         this.levelObject.update()
         this.player.update()
@@ -45,8 +47,10 @@
         if (this.lifeCount < 1 && !this.dead) {
             this.dead = true
             this.lifeCount = 0
-            this.highscore = this.score
+            if (this.score > this.highscore) this.highscore = this.score
         }
+
+        if (this.objSpeed !=0) this.score++
 
         if (this.score < 0) {
             this.score = 0
@@ -56,9 +60,10 @@
         this.ctx.font = "32px VT323"
         // Scores and lifes
         this.ctx.textAlign="start"
-        this.ctx.fillText(this.lifeCount + " levens", 1100, 150)//lifes
-        this.ctx.fillText("High Score: " + this.highscore + this.levelObject.currentLevel, 50, 150)
-        this.ctx.fillText("Score: " + this.score + this.levelObject.currentLevel, 50, 180)
+        this.ctx.fillText("High Score: " + this.highscore, 1000, 180)
+        this.ctx.fillText("Score: " + this.score, 1000, 150)
+        this.ctx.fillText(this.lifeCount + " x ", 1000, 260)
+        this.ctx.drawImage(this.life, 1050, 225, 45, 45)
         // Proverb string
         this.ctx.textAlign="center"
         this.ctx.font = "48px VT323"

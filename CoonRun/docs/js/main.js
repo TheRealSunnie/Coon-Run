@@ -43,6 +43,7 @@ var Cloud = (function (_super) {
         return _this;
     }
     Cloud.prototype.update = function () {
+        this.hspeed = this.game.cloudSpeed;
         if (!this.game.levelObject.levels[this.game.levelObject.currentLevel].night) {
             this.Image = document.getElementById('wolk');
         }
@@ -57,27 +58,27 @@ var Cloud = (function (_super) {
 var Spawner = (function () {
     function Spawner(game) {
         this.bins = [];
-        this.binChance = 0.0;
+        this.binChance = 0.4;
         this.canSpawnBin = false;
-        this.binSpawnMaxCD = 60;
+        this.binSpawnMaxCD = 1;
         this.binSpawnCD = this.binSpawnMaxCD;
         this.single = 0;
         this.double = 1;
         this.triple = 2;
         this.words = [];
-        this.wordChance = 0.05;
+        this.wordChance = 0.95;
         this.canSpawnWord = false;
-        this.wordSpawnMaxCD = 300;
+        this.wordSpawnMaxCD = 1;
         this.wordSpawnCD = this.wordSpawnMaxCD;
         this.lifes = [];
-        this.lifeChance = 0;
+        this.lifeChance = 1;
         this.canSpawnLife = false;
-        this.lifeSpawnMaxCD = 100;
+        this.lifeSpawnMaxCD = 1;
         this.lifeSpawnCD = this.lifeSpawnMaxCD;
         this.trash = [];
-        this.trashChance = 0;
+        this.trashChance = 0.65;
         this.canSpawntrash = false;
-        this.trashSpawnMaxCD = 1000;
+        this.trashSpawnMaxCD = 1;
         this.trashSpawnCD = this.trashSpawnMaxCD;
         this.clouds = [];
         this.cloudChance = 0.1;
@@ -89,10 +90,62 @@ var Spawner = (function () {
         this.canSpawnBg = false;
         this.bgSpawnMaxCD = 1000;
         this.bgCD = 60;
+        this.canSpawn = false;
+        this.spawnMaxCD = 90;
+        this.spawnCD = this.spawnMaxCD;
         this.game = game;
     }
     Spawner.prototype.update = function () {
+        if (this.spawnCD > 0) {
+            this.spawnCD--;
+        }
+        if (this.spawnCD < 1) {
+            this.spawnCD = this.spawnMaxCD;
+            this.canSpawn = true;
+        }
         if (!this.game.dead && this.game.levelObject.currentLevel != 0) {
+            if (this.canSpawn) {
+                this.canSpawn = false;
+                var chance = Math.random();
+                if (chance < this.binChance) {
+                    this.spawnBin();
+                    var chance_1 = Math.random();
+                    if (chance_1 < .5) {
+                    }
+                    else if (chance_1 < .97) {
+                        var height = this.game.ground - 350;
+                        this.spawnTrash(height);
+                    }
+                    else if (chance_1 < this.lifeChance) {
+                        var height = this.game.ground - 350;
+                        this.spawnLife(height);
+                    }
+                }
+                else if (chance < this.trashChance) {
+                    var height = void 0;
+                    if (Math.random() > .5) {
+                        height = this.game.ground - 150;
+                    }
+                    else {
+                        height = this.game.ground - 350;
+                    }
+                    this.spawnTrash(height);
+                }
+                else if (chance < this.wordChance) {
+                    var height = void 0;
+                    if (Math.random() > .5) {
+                        height = this.game.ground - 180;
+                    }
+                    else {
+                        height = this.game.ground - 350;
+                    }
+                    this.spawnWord(height);
+                }
+                else if (chance < this.lifeChance) {
+                    var height = this.game.ground - 350;
+                    this.spawnLife(height);
+                }
+            }
             if (this.cloudSpawnCD > 0 && !this.canSpawnCloud) {
                 this.cloudSpawnCD--;
             }
@@ -114,59 +167,6 @@ var Spawner = (function () {
             if (Math.random() < this.bgChance && this.canSpawnBg) {
                 this.bgObject.push(new BgObject(this.game));
                 this.canSpawnBg = false;
-            }
-            if (this.binSpawnCD > 0 && !this.canSpawnBin) {
-                this.binSpawnCD--;
-            }
-            else {
-                this.binSpawnCD = 60;
-                this.canSpawnBin = true;
-            }
-            if (Math.random() < this.binChance && this.canSpawnBin) {
-                var binType = void 0;
-                if (Math.random() > .33) {
-                    binType = this.single;
-                }
-                else if (Math.random() > .5) {
-                    binType = this.double;
-                }
-                else {
-                    binType = this.triple;
-                }
-                this.bins.push(new Bin(this.game, binType));
-                this.canSpawnBin = false;
-            }
-            if (this.wordSpawnCD > 0 && !this.canSpawnWord) {
-                this.wordSpawnCD--;
-            }
-            else {
-                this.wordSpawnCD = 150;
-                this.canSpawnWord = true;
-            }
-            if (Math.random() < this.wordChance && this.canSpawnWord && this.game.levelObject.currentLevel != 7 && !this.game.levelObject.levelBreak && !this.game.levelObject.levels[this.game.levelObject.currentLevel].night) {
-                var fake = void 0;
-                var name_1;
-                if (Math.random() > .5) {
-                    fake = true;
-                    name_1 = Math.floor(Math.random() * this.game.levelObject.proverbs.list[this.game.levelObject.currentProverb].incorrect.length);
-                }
-                else {
-                    fake = false;
-                    name_1 = Math.floor(Math.random() * this.game.levelObject.proverbProgress.length);
-                }
-                this.words.push(new Word(this.game, name_1, fake));
-                this.canSpawnWord = false;
-            }
-            if (this.lifeSpawnCD > 0 && !this.canSpawnLife) {
-                this.lifeSpawnCD--;
-            }
-            else {
-                this.lifeSpawnCD = 1100;
-                this.canSpawnLife = true;
-            }
-            if (Math.random() < this.lifeChance && this.canSpawnLife) {
-                this.lifes.push(new Life(this.game));
-                this.canSpawnLife = false;
             }
         }
         var deleteCloud = [];
@@ -224,17 +224,57 @@ var Spawner = (function () {
         for (var i in deleteLife) {
             this.lifes.splice(parseInt(i), 1);
         }
+        var deleteTrash = [];
+        for (var i = 0; i < this.trash.length; i++) {
+            this.trash[i].update();
+            if (!this.trash[i].alive) {
+                deleteTrash.push(i);
+            }
+        }
+        deleteTrash.reverse();
+        for (var i in deleteTrash) {
+            this.trash.splice(parseInt(i), 1);
+        }
+    };
+    Spawner.prototype.spawnBin = function () {
+        var binType;
+        if (Math.random() > .5) {
+            binType = this.single;
+        }
+        else {
+            binType = this.double;
+        }
+        this.bins.push(new Bin(this.game, binType));
+    };
+    Spawner.prototype.spawnTrash = function (height) {
+        this.trash.push(new Trash(this.game, height));
+    };
+    Spawner.prototype.spawnWord = function (height) {
+        var fake;
+        var name;
+        if (Math.random() > .6) {
+            fake = true;
+            name = Math.floor(Math.random() * this.game.levelObject.proverbs.list[this.game.levelObject.currentProverb].incorrect.length);
+        }
+        else {
+            fake = false;
+            name = Math.floor(Math.random() * this.game.levelObject.proverbProgress.length);
+        }
+        this.words.push(new Word(this.game, name, fake, height));
+    };
+    Spawner.prototype.spawnLife = function (height) {
+        this.lifes.push(new Life(this.game, height));
     };
     return Spawner;
 }());
 var Trash = (function (_super) {
     __extends(Trash, _super);
-    function Trash(game) {
+    function Trash(game, height) {
         var _this = _super.call(this, game) || this;
         _this.game = game;
         _this.hspeed = _this.game.objSpeed;
         _this.x = _this.game.canvasWidth;
-        _this.y = _this.game.ground;
+        _this.y = height;
         _this.width = 63;
         _this.height = 63;
         _this.Image = document.getElementById('peel');
@@ -244,7 +284,9 @@ var Trash = (function (_super) {
         this.hspeed = this.game.objSpeed;
         if (this.game.collision(this)) {
             this.alive = false;
-            this.game.score += 100;
+            this.game.score += 500;
+            var sound = document.getElementById('coinSnd');
+            sound.play();
         }
         this.game.ctx.fillStyle = "#00FFFF";
         _super.prototype.update.call(this);
@@ -258,7 +300,7 @@ var Game = (function () {
         this.ctx = this.canvas.getContext("2d");
         this.canvasWidth = 1280;
         this.ground = 650;
-        this.startingLifes = 2;
+        this.startingLifes = 1;
         this.lifeCount = this.startingLifes;
         this.score = 0;
         this.highscore = 0;
@@ -269,6 +311,7 @@ var Game = (function () {
         this.cloudSpeed = .5;
         this.sun = document.getElementById('sun');
         this.moon = document.getElementById('moon');
+        this.life = document.getElementById('life');
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
@@ -284,17 +327,21 @@ var Game = (function () {
             if (_this.lifeCount < 1 && !_this.dead) {
                 _this.dead = true;
                 _this.lifeCount = 0;
-                _this.highscore = _this.score;
+                if (_this.score > _this.highscore)
+                    _this.highscore = _this.score;
             }
+            if (_this.objSpeed != 0)
+                _this.score++;
             if (_this.score < 0) {
                 _this.score = 0;
             }
             _this.ctx.fillStyle = "black";
             _this.ctx.font = "32px VT323";
             _this.ctx.textAlign = "start";
-            _this.ctx.fillText(_this.lifeCount + " levens", 1100, 150);
-            _this.ctx.fillText("High Score: " + _this.highscore + _this.levelObject.currentLevel, 50, 150);
-            _this.ctx.fillText("Score: " + _this.score + _this.levelObject.currentLevel, 50, 180);
+            _this.ctx.fillText("High Score: " + _this.highscore, 1000, 180);
+            _this.ctx.fillText("Score: " + _this.score, 1000, 150);
+            _this.ctx.fillText(_this.lifeCount + " x ", 1000, 260);
+            _this.ctx.drawImage(_this.life, 1050, 225, 45, 45);
             _this.ctx.textAlign = "center";
             _this.ctx.font = "48px VT323";
             _this.ctx.fillText(_this.levelObject.currentString, _this.canvasWidth / 2, 100);
@@ -409,6 +456,7 @@ var BgObject = (function (_super) {
         return _this;
     }
     BgObject.prototype.update = function () {
+        this.hspeed = this.game.cloudSpeed;
         _super.prototype.update.call(this);
     };
     return BgObject;
@@ -433,7 +481,7 @@ var Bin = (function (_super) {
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
                 _this.Image = _this.small;
-                if (_this.game.levelObject.currentLevel == 4) {
+                if (_this.game.levelObject.currentLevel == 7) {
                     _this.Image = _this.ksmall;
                 }
                 break;
@@ -442,7 +490,7 @@ var Bin = (function (_super) {
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
                 _this.Image = _this.medium;
-                if (_this.game.levelObject.currentLevel == 4) {
+                if (_this.game.levelObject.currentLevel == 7) {
                     _this.Image = _this.kmedium;
                 }
                 break;
@@ -451,7 +499,7 @@ var Bin = (function (_super) {
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
                 _this.Image = _this.large;
-                if (_this.game.levelObject.currentLevel == 4) {
+                if (_this.game.levelObject.currentLevel == 7) {
                     _this.Image = _this.klarge;
                 }
                 break;
@@ -466,6 +514,16 @@ var Bin = (function (_super) {
             this.alive = false;
             this.game.lifeCount--;
             this.game.player.vulnerable = false;
+            var sound = document.getElementById('hitSnd');
+            sound.play();
+            if (this.game.lifeCount < 1) {
+                this.game.levelObject.levelMusic.pause();
+                this.game.levelObject.levelMusic.currentTime = 0;
+                var sound_1 = document.getElementById('deathSnd');
+                sound_1.play();
+                this.game.levelObject.levelMusic = document.getElementById('gameoverSong');
+                this.game.levelObject.levelMusic.play();
+            }
         }
         this.game.ctx.fillStyle = "black";
         _super.prototype.update.call(this);
@@ -480,7 +538,7 @@ var Levels = (function () {
         this.levelCountdown = 300;
         this.levelBreak = false;
         this.nightOver = false;
-        this.nightCountdown = 600;
+        this.nightCountdown = 900;
         this.game = game;
         this.levels = [
             {
@@ -488,76 +546,117 @@ var Levels = (function () {
                 sprite: document.getElementById('level1'),
                 maxSpeed: 0,
                 acceleration: 0,
+                binChance: 0,
+                trashChance: 0,
+                wordChance: 0,
+                lifeChance: 0,
                 proverbArray: [0],
                 bgArray: [0, 1],
-                night: false
+                night: false,
+                music: document.getElementById("dag")
             },
             {
                 level: 1,
                 sprite: document.getElementById('level1'),
-                maxSpeed: 13,
+                maxSpeed: 15,
                 acceleration: 0.001,
+                binChance: .4,
+                trashChance: .5,
+                wordChance: .97,
+                lifeChance: 1,
                 proverbArray: [1, 2, 3, 4],
                 bgArray: [2, 3, 4],
-                night: false
+                night: false,
+                music: document.getElementById("dag")
             },
             {
                 level: 2,
                 sprite: document.getElementById('level0'),
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 16,
+                acceleration: 0.0015,
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
                 proverbArray: [0],
                 bgArray: [0, 1],
-                night: true
+                night: true,
+                music: document.getElementById("nacht")
             },
             {
                 level: 3,
                 sprite: document.getElementById('level2'),
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 17,
+                acceleration: 0.002,
+                binChance: .4,
+                trashChance: .5,
+                wordChance: .97,
+                lifeChance: 1,
                 proverbArray: [5, 6, 7, 8, 9, 10],
                 bgArray: [5, 6],
-                night: false
+                night: false,
+                music: document.getElementById("dag")
             },
             {
                 level: 4,
                 sprite: document.getElementById('level0'),
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 18,
+                acceleration: 0.002,
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
                 proverbArray: [0],
                 bgArray: [0, 1],
-                night: true
+                night: true,
+                music: document.getElementById("nacht")
             },
             {
                 level: 5,
                 sprite: document.getElementById('level3'),
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 19,
+                acceleration: 0.0025,
+                binChance: .4,
+                trashChance: .5,
+                wordChance: .97,
+                lifeChance: 1,
                 proverbArray: [11, 12, 13, 14, 15],
                 bgArray: [7, 8, 9],
-                night: false
+                night: false,
+                music: document.getElementById("dag")
             },
             {
                 level: 6,
                 sprite: document.getElementById('level0'),
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 20,
+                acceleration: 0.0025,
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
                 proverbArray: [0],
                 bgArray: [0, 1],
-                night: true
+                night: true,
+                music: document.getElementById("nacht")
             },
             {
                 level: 7,
                 sprite: document.getElementById('level4'),
-                maxSpeed: 15,
-                acceleration: 0.001,
+                maxSpeed: 21,
+                acceleration: 0.003,
+                binChance: .45,
+                trashChance: .95,
+                wordChance: 0,
+                lifeChance: 1,
                 proverbArray: [0],
                 bgArray: [10, 11],
-                night: false
+                night: false,
+                music: document.getElementById("kawaiisong")
             },
         ];
         this.maxLevel = this.levels.length - 1;
         this.levelSprite = this.levels[this.currentLevel].sprite;
+        this.levelMusic = this.levels[this.currentLevel].music;
         this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
         this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice();
         this.currentString = this.proverbs.list[this.currentProverb].string;
@@ -585,6 +684,10 @@ var Levels = (function () {
             this.switchProverb();
         }
         if (this.levelBreak) {
+            this.game.Spawner.binChance = 0;
+            this.game.Spawner.trashChance = 0;
+            this.game.Spawner.wordChance = 0;
+            this.game.Spawner.lifeChance = 0;
             if (this.levelCountdown > 0) {
                 this.levelCountdown--;
             }
@@ -608,6 +711,12 @@ var Levels = (function () {
         }
         if (this.game.dead) {
             this.currentLevel = 0;
+            this.game.bgSpeed = 0;
+            this.game.cloudSpeed = 0;
+            this.game.Spawner.binChance = 0;
+            this.game.Spawner.trashChance = 0;
+            this.game.Spawner.wordChance = 0;
+            this.game.Spawner.lifeChance = 0;
         }
         this.game.objSpeed += this.levels[this.currentLevel].acceleration;
         if (this.game.objSpeed > this.levels[this.currentLevel].maxSpeed)
@@ -620,6 +729,8 @@ var Levels = (function () {
         this.game.lifeCount = this.game.startingLifes;
         this.game.objSpeed = this.game.startObjSpeed;
         this.game.score = 0;
+        this.game.bgSpeed = 1;
+        this.game.cloudSpeed = .5;
     };
     Levels.prototype.switchProverb = function () {
         this.currentProverb = this.random();
@@ -633,20 +744,28 @@ var Levels = (function () {
         return j;
     };
     Levels.prototype.switchLevel = function () {
+        this.levelMusic.pause();
+        this.levelMusic.currentTime = 0;
         this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
         this.levelSprite = this.levels[this.currentLevel].sprite;
         this.switchProverb();
+        this.game.Spawner.binChance = this.levels[this.currentLevel].binChance;
+        this.game.Spawner.trashChance = this.levels[this.currentLevel].trashChance;
+        this.game.Spawner.wordChance = this.levels[this.currentLevel].wordChance;
+        this.game.Spawner.lifeChance = this.levels[this.currentLevel].lifeChance;
+        this.levelMusic = this.levels[this.currentLevel].music;
+        this.levelMusic.play();
     };
     return Levels;
 }());
 var Life = (function (_super) {
     __extends(Life, _super);
-    function Life(game) {
+    function Life(game, height) {
         var _this = _super.call(this, game) || this;
         _this.game = game;
         _this.hspeed = _this.game.objSpeed;
         _this.x = _this.game.canvasWidth;
-        _this.y = _this.game.ground;
+        _this.y = height;
         _this.width = 63;
         _this.height = 63;
         _this.Image = document.getElementById('life');
@@ -657,6 +776,8 @@ var Life = (function (_super) {
         if (this.game.collision(this)) {
             this.alive = false;
             this.game.lifeCount++;
+            var sound = document.getElementById('lifeSnd');
+            sound.play();
         }
         this.game.ctx.fillStyle = "#00FFFF";
         _super.prototype.update.call(this);
@@ -777,7 +898,6 @@ var Player = (function () {
             this.playerImage = this.duck;
         }
         this.game.ctx.fillStyle = "black";
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height);
     };
     Player.prototype.onKeyDown = function (e) {
@@ -796,6 +916,8 @@ var Player = (function () {
                 this.height /= 2;
                 this.y += this.height;
                 this.ducking = true;
+                var duckSound = document.getElementById('duckSnd');
+                duckSound.play();
             }
         }
     };
@@ -911,15 +1033,15 @@ var Test = (function () {
     return Test;
 }());
 var Word = (function () {
-    function Word(game, index, fake) {
-        this.width = 53;
-        this.height = 53;
+    function Word(game, index, fake, height) {
+        this.width = 75;
+        this.height = 75;
         this.fake = false;
         this.alive = true;
         this.Image = document.getElementById('appel');
         this.game = game;
         this.x = this.game.canvasWidth;
-        this.y = this.game.ground - this.height - 250;
+        this.y = height;
         this.hspeed = this.game.objSpeed;
         this.fake = fake;
         this.index = index;
@@ -937,12 +1059,16 @@ var Word = (function () {
             if (!this.fake) {
                 this.game.levelObject.proverbProgress.splice(this.index, 1);
                 this.game.score += 1000;
+                var sound = document.getElementById('correctSnd');
+                sound.play();
             }
             else {
                 this.game.score -= 1000;
                 if (this.game.score < 0) {
                     this.game.score = 0;
                 }
+                var sound = document.getElementById('incorrectSnd');
+                sound.play();
             }
         }
         if (this.x < 0 - this.width) {
@@ -953,7 +1079,6 @@ var Word = (function () {
             this.game.ctx.fillStyle = "red";
         else
             this.game.ctx.fillStyle = "green";
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height);
     };
     return Word;
