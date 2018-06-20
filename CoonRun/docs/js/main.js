@@ -15,7 +15,7 @@ var basicObject = (function () {
         this.height = 50;
         this.alive = true;
         this.hspeed = 0;
-        this.Image = document.getElementById('bin');
+        this.Image = document.getElementById('bin1');
         this.game = game;
         this.x = this.game.canvasWidth;
         this.y = this.game.ground - this.height;
@@ -34,15 +34,16 @@ var Cloud = (function (_super) {
     __extends(Cloud, _super);
     function Cloud(game) {
         var _this = _super.call(this, game) || this;
+        _this.height = 109;
+        _this.width = 230;
         _this.Image = document.getElementById('wolk');
         _this.game = game;
         _this.x = _this.game.canvasWidth;
         _this.y = Math.floor(Math.random() * 150) + 5;
-        _this.hspeed = _this.game.objSpeed;
+        _this.hspeed = _this.game.cloudSpeed;
         return _this;
     }
     Cloud.prototype.update = function () {
-        this.hspeed = this.game.objSpeed;
         this.game.ctx.fillStyle = "white";
         _super.prototype.update.call(this);
     };
@@ -51,7 +52,7 @@ var Cloud = (function (_super) {
 var Spawner = (function () {
     function Spawner(game) {
         this.bins = [];
-        this.binChance = 0.03;
+        this.binChance = 0.0;
         this.canSpawnBin = false;
         this.binSpawnCD = 60;
         this.single = 0;
@@ -62,7 +63,7 @@ var Spawner = (function () {
         this.canSpawnWord = false;
         this.wordSpawnCD = 300;
         this.clouds = [];
-        this.cloudChance = 0.05;
+        this.cloudChance = 0.0;
         this.canSpawnCloud = false;
         this.cloudSpawnCD = 60;
         this.lifes = [];
@@ -72,7 +73,7 @@ var Spawner = (function () {
         this.game = game;
     }
     Spawner.prototype.update = function () {
-        if (!this.game.dead && this.game.currentLevel != 0) {
+        if (!this.game.dead && this.game.levelObject.currentLevel != 0) {
             if (this.binSpawnCD > 0 && !this.canSpawnBin) {
                 this.binSpawnCD--;
             }
@@ -101,16 +102,16 @@ var Spawner = (function () {
                 this.wordSpawnCD = 150;
                 this.canSpawnWord = true;
             }
-            if (Math.random() < this.wordChance && this.canSpawnWord) {
+            if (Math.random() < this.wordChance && this.canSpawnWord && this.game.levelObject.currentLevel != 7 && !this.game.levelObject.levelBreak && !this.game.levelObject.levels[this.game.levelObject.currentLevel].night) {
                 var fake = void 0;
                 var name_1;
-                if (Math.random() > .9) {
+                if (Math.random() > .5) {
                     fake = true;
-                    name_1 = Math.floor(Math.random() * this.game.levelObject.currentProverb.incorrect.length);
+                    name_1 = Math.floor(Math.random() * this.game.levelObject.proverbs.list[this.game.levelObject.currentProverb].incorrect.length);
                 }
                 else {
                     fake = false;
-                    name_1 = Math.floor(Math.random() * this.game.levelObject.currentProverb.correct.length);
+                    name_1 = Math.floor(Math.random() * this.game.levelObject.proverbProgress.length);
                 }
                 this.words.push(new Word(this.game, name_1, fake));
                 this.canSpawnWord = false;
@@ -182,68 +183,74 @@ var Spawner = (function () {
         for (var i in deleteLife) {
             this.lifes.splice(parseInt(i), 1);
         }
-        if (this.game.lifeCount < 1 && !this.game.dead) {
-            this.game.dead = true;
-            console.log("game over");
-        }
-        if (this.game.dead) {
-            this.game.levelObject.switch(0);
-        }
-        if (this.game.score < 0) {
-            this.game.score = 0;
-        }
     };
     return Spawner;
 }());
-var Trash = (function () {
-    function Trash(ground, canvasWidth, hspeed) {
-        console.log("hier komt een prullebakkie");
-        this.width = 50;
-        this.height = 50;
-        this.canvasWidth = canvasWidth;
-        this.x = canvasWidth;
-        this.y = ground - this.height;
-        this.hspeed = hspeed;
-        this.active = false;
+var Trash = (function (_super) {
+    __extends(Trash, _super);
+    function Trash(game) {
+        var _this = _super.call(this, game) || this;
+        _this.game = game;
+        _this.hspeed = _this.game.objSpeed;
+        _this.x = _this.game.canvasWidth;
+        _this.y = _this.game.ground;
+        _this.width = 63;
+        _this.height = 63;
+        _this.Image = document.getElementById('peel');
+        return _this;
     }
     Trash.prototype.update = function () {
-        if (!this.active) {
-            this.x = this.canvasWidth;
+        this.hspeed = this.game.objSpeed;
+        if (this.game.collision(this)) {
+            this.alive = false;
+            this.game.score += 100;
         }
-        else {
-            this.x -= this.hspeed;
-        }
-        if (this.x < 0 - this.width) {
-            this.active = false;
-        }
+        this.game.ctx.fillStyle = "#00FFFF";
+        _super.prototype.update.call(this);
     };
     return Trash;
-}());
+}(basicObject));
 var Game = (function () {
     function Game() {
         var _this = this;
         this.canvas = document.getElementById('cnvs');
         this.ctx = this.canvas.getContext("2d");
         this.canvasWidth = 1280;
-        this.currentLevel = 0;
-        this.ground = 720;
-        this.maxLifes = 2;
-        this.lifeCount = this.maxLifes;
+        this.ground = 650;
+        this.startingLifes = 2;
+        this.lifeCount = this.startingLifes;
         this.score = 0;
+        this.highscore = 0;
         this.dead = false;
         this.startObjSpeed = 12;
         this.objSpeed = this.startObjSpeed;
+        this.bgSpeed = 3;
+        this.cloudSpeed = 1;
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
-            _this.ctx.fillRect(0, 0, 1280, 720);
-            _this.player.update();
+            _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
             _this.Spawner.update();
             _this.levelObject.update();
+            _this.player.update();
+            if (_this.lifeCount < 1 && !_this.dead) {
+                _this.dead = true;
+                _this.lifeCount = 0;
+                _this.highscore = _this.score;
+            }
+            if (_this.score < 0) {
+                _this.score = 0;
+            }
             _this.ctx.fillStyle = "black";
-            _this.ctx.font = "30px Arial";
+            _this.ctx.font = "32px VT323";
+            _this.ctx.textAlign = "start";
             _this.ctx.fillText(_this.lifeCount + " levens", 150, 450);
-            _this.ctx.fillText("Score: " + _this.score + _this.currentLevel, 50, 200);
-            _this.ctx.fillText(_this.levelObject.currentString, _this.canvasWidth / 2, 200);
+            _this.ctx.fillText("Score: " + _this.score + _this.highscore + _this.levelObject.currentLevel, 50, 200);
+            _this.ctx.textAlign = "center";
+            _this.ctx.font = "48px VT323";
+            _this.ctx.fillText(_this.levelObject.currentString, _this.canvasWidth / 2, 100);
+            if (_this.levelObject.currentLevel == 0) {
+                _this.ctx.fillText("PRESS SPACE TO START", _this.canvasWidth / 2, _this.canvas.height / 2);
+            }
             _this.ctx.stroke();
             requestAnimationFrame(_this.gameLoop);
         };
@@ -253,7 +260,7 @@ var Game = (function () {
         requestAnimationFrame(this.gameLoop);
     }
     Game.prototype.collision = function (object) {
-        if (object.x > this.player.x - object.width && object.x < this.player.x + this.player.width && object.y > this.player.y - object.height && object.y < this.player.y + this.player.height) {
+        if (object.x > this.player.x + 60 - object.width && object.x < this.player.x + this.player.width - 10 && object.y > this.player.y - object.height && object.y < this.player.y + this.player.height) {
             return true;
         }
         else {
@@ -263,29 +270,141 @@ var Game = (function () {
     return Game;
 }());
 window.addEventListener("load", function () { return new Game(); });
+var BgObject = (function (_super) {
+    __extends(BgObject, _super);
+    function BgObject(game) {
+        var _this = _super.call(this, game) || this;
+        _this.index = [
+            {
+                level: 0,
+                sprite: document.getElementById('bench'),
+                width: 75,
+                height: 58
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('lantern'),
+                width: 50,
+                height: 240
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('carrots'),
+                width: 200,
+                height: 130
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('corn'),
+                width: 200,
+                height: 230
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('flower'),
+                width: 210,
+                height: 170
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('bookshelf'),
+                width: 150,
+                height: 300
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('chouch'),
+                width: 300,
+                height: 150
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('signzoo'),
+                width: 132,
+                height: 126
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('zebra'),
+                width: 256,
+                height: 144
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('zoosign'),
+                width: 192,
+                height: 108
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('kawaiihearts'),
+                width: 90,
+                height: 90
+            },
+            {
+                level: 0,
+                sprite: document.getElementById('kawaiirainbow'),
+                width: 140,
+                height: 80
+            },
+        ];
+        var i = _this.index[_this.game.levelObject.levels[_this.game.levelObject.currentLevel].bgArray[Math.floor(Math.random() * _this.game.levelObject.levels[_this.game.levelObject.currentLevel].bgArray.length)]];
+        _this.height = i.height;
+        _this.width = i.width;
+        _this.Image = i.sprite;
+        _this.game = game;
+        _this.x = _this.game.canvasWidth;
+        _this.y = Math.floor(Math.random() * 100) + 5;
+        _this.hspeed = _this.game.bgSpeed;
+        return _this;
+    }
+    BgObject.prototype.update = function () {
+        this.game.ctx.fillStyle = "white";
+        _super.prototype.update.call(this);
+    };
+    return BgObject;
+}(basicObject));
 var Bin = (function (_super) {
     __extends(Bin, _super);
     function Bin(game, type) {
         var _this = _super.call(this, game) || this;
-        _this.Image = document.getElementById('bin');
+        _this.small = document.getElementById('bin1');
+        _this.medium = document.getElementById('bin2');
+        _this.large = document.getElementById('bin3');
+        _this.ksmall = document.getElementById('kawaiibin1');
+        _this.kmedium = document.getElementById('kawaiibin2');
+        _this.klarge = document.getElementById('kawaiibin3');
+        _this.Image = document.getElementById('bin1');
         _this.game = game;
         _this.hspeed = _this.game.objSpeed;
         _this.type = type;
         switch (_this.type) {
             case _this.game.Spawner.single:
-                _this.width = 50;
+                _this.width = 88;
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
+                _this.Image = _this.small;
+                if (_this.game.levelObject.currentLevel == 4) {
+                    _this.Image = _this.ksmall;
+                }
                 break;
             case _this.game.Spawner.double:
-                _this.width = 100;
+                _this.width = 176;
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
+                _this.Image = _this.medium;
+                if (_this.game.levelObject.currentLevel == 4) {
+                    _this.Image = _this.kmedium;
+                }
                 break;
             case _this.game.Spawner.triple:
-                _this.width = 150;
+                _this.width = 264;
                 _this.height = 125;
                 _this.y = _this.game.ground - _this.height;
+                _this.Image = _this.large;
+                if (_this.game.levelObject.currentLevel == 4) {
+                    _this.Image = _this.klarge;
+                }
                 break;
         }
         _this.x = _this.game.canvasWidth;
@@ -297,6 +416,7 @@ var Bin = (function (_super) {
         if (this.game.collision(this)) {
             this.alive = false;
             this.game.lifeCount--;
+            this.game.player.vulnerable = false;
         }
         this.game.ctx.fillStyle = "black";
         _super.prototype.update.call(this);
@@ -306,94 +426,182 @@ var Bin = (function (_super) {
 var Levels = (function () {
     function Levels(game) {
         this.proverbs = new Proverbs();
-        this.proverbArray = [];
-        this.currentProverb = { string: "", correct: [""], incorrect: [""] };
-        this.currentString = "";
-        this.maxSpeed = 0;
-        this.acceleration = 0.001;
-        this.maxLevel = 5;
+        this.currentLevel = 0;
+        this.currentProverb = 0;
+        this.levelCountdown = 300;
+        this.levelBreak = false;
+        this.nightOver = false;
+        this.nightCountdown = 600;
         this.game = game;
-        this.switch(this.game.currentLevel);
+        this.levels = [
+            {
+                level: 0,
+                sprite: document.getElementById('level1'),
+                maxSpeed: 0,
+                acceleration: 0,
+                proverbArray: [0],
+                bgArray: [0, 1],
+                night: false
+            },
+            {
+                level: 1,
+                sprite: document.getElementById('level1'),
+                maxSpeed: 13,
+                acceleration: 0.001,
+                proverbArray: [1, 2, 3, 4],
+                bgArray: [2, 3, 4],
+                night: false
+            },
+            {
+                level: 2,
+                sprite: document.getElementById('level0'),
+                maxSpeed: 15,
+                acceleration: 0.001,
+                proverbArray: [0],
+                bgArray: [0, 1],
+                night: true
+            },
+            {
+                level: 3,
+                sprite: document.getElementById('level2'),
+                maxSpeed: 15,
+                acceleration: 0.001,
+                proverbArray: [5, 6, 7, 8, 9, 10],
+                bgArray: [5, 6],
+                night: false
+            },
+            {
+                level: 4,
+                sprite: document.getElementById('level0'),
+                maxSpeed: 15,
+                acceleration: 0.001,
+                proverbArray: [0],
+                bgArray: [0, 1],
+                night: true
+            },
+            {
+                level: 5,
+                sprite: document.getElementById('level3'),
+                maxSpeed: 15,
+                acceleration: 0.001,
+                proverbArray: [11, 12, 13, 14, 15],
+                bgArray: [7, 8, 9],
+                night: false
+            },
+            {
+                level: 6,
+                sprite: document.getElementById('level0'),
+                maxSpeed: 15,
+                acceleration: 0.001,
+                proverbArray: [0],
+                bgArray: [0, 1],
+                night: true
+            },
+            {
+                level: 7,
+                sprite: document.getElementById('level4'),
+                maxSpeed: 15,
+                acceleration: 0.001,
+                proverbArray: [0],
+                bgArray: [10, 11],
+                night: false
+            },
+        ];
+        this.maxLevel = this.levels.length - 1;
+        this.levelSprite = this.levels[this.currentLevel].sprite;
+        this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
+        this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice();
+        this.currentString = this.proverbs.list[this.currentProverb].string;
     }
     Levels.prototype.update = function () {
-        if (this.game.currentLevel > this.maxLevel)
-            this.game.currentLevel = this.maxLevel;
-        this.game.objSpeed += this.acceleration;
-        if (this.game.objSpeed > this.maxSpeed)
-            this.game.objSpeed = this.maxSpeed;
-        var correctIsZero = (this.currentProverb.correct.length == 0);
-        var proverbIsZero = (this.proverbArray.length == 0);
-        if (correctIsZero && proverbIsZero) {
-            this.game.currentLevel++;
-            if (this.game.currentLevel > this.maxLevel)
-                this.game.currentLevel = this.maxLevel;
-            this.switch(this.game.currentLevel);
+        var lvlReady = (this.levelProgress.length == 0);
+        var proverbReady = (this.proverbProgress.length == 0);
+        if ((proverbReady && lvlReady) || this.nightOver) {
+            this.currentProverb = 0;
+            this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice();
+            this.currentString = this.proverbs.list[this.currentProverb].string;
+            if (this.nightOver) {
+                console.log("night over");
+                this.nightOver = false;
+                if (this.currentLevel != this.maxLevel) {
+                    this.currentLevel++;
+                }
+                this.switchLevel();
+            }
+            else {
+                this.levelBreak = true;
+            }
         }
-        else if (correctIsZero) {
+        else if (proverbReady) {
             this.switchProverb();
         }
+        if (this.levelBreak) {
+            if (this.levelCountdown > 0) {
+                this.levelCountdown--;
+            }
+            if (this.levelCountdown < 1) {
+                if (this.currentLevel != this.maxLevel) {
+                    this.currentLevel++;
+                }
+                this.switchLevel();
+                this.levelCountdown = 300;
+                this.levelBreak = false;
+            }
+        }
+        if (this.levels[this.currentLevel].night) {
+            if (this.nightCountdown > 0) {
+                this.nightCountdown--;
+            }
+            if (this.nightCountdown < 1) {
+                this.nightOver = true;
+                this.nightCountdown = 600;
+            }
+        }
+        if (this.game.dead) {
+            this.currentLevel = 0;
+        }
+        this.game.objSpeed += this.levels[this.currentLevel].acceleration;
+        if (this.game.objSpeed > this.levels[this.currentLevel].maxSpeed)
+            this.game.objSpeed = this.levels[this.currentLevel].maxSpeed;
     };
-    Levels.prototype.switch = function (level) {
-        switch (level) {
-            case 0:
-                this.maxSpeed = 0;
-                this.proverbArray = [0];
-                this.currentProverb = { string: "", correct: [], incorrect: [] };
-                this.currentString = this.currentProverb.string;
-                break;
-            case 1:
-                this.maxSpeed = 13;
-                this.proverbArray = [0];
-                break;
-            case 2:
-                this.maxSpeed = 15;
-                this.proverbArray = [1];
-                break;
-            case 3:
-                this.maxSpeed = 17;
-                this.proverbArray = [2];
-                break;
-            case 4:
-                this.maxSpeed = 20;
-                this.proverbArray = [3];
-                break;
-            case 5:
-                this.maxSpeed = 22;
-                this.proverbArray = [0];
-                break;
-        }
-        if (this.game.currentLevel != 0)
-            this.switchProverb();
+    Levels.prototype.restart = function () {
+        this.currentLevel = 1;
+        this.switchLevel();
+        this.game.dead = false;
+        this.game.lifeCount = this.game.startingLifes;
+        this.game.objSpeed = this.game.startObjSpeed;
+        this.game.score = 0;
     };
     Levels.prototype.switchProverb = function () {
         this.currentProverb = this.random();
-        this.currentString = this.currentProverb.string;
-    };
-    Levels.prototype.restart = function () {
-        this.game.dead = false;
-        this.game.lifeCount = this.game.maxLifes;
-        this.game.objSpeed = this.game.startObjSpeed;
-        this.game.score = 0;
-        this.game.currentLevel = 1;
-        this.switch(this.game.currentLevel);
+        this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice();
+        this.currentString = this.proverbs.list[this.currentProverb].string;
     };
     Levels.prototype.random = function () {
-        var i = Math.floor(Math.random() * this.proverbArray.length);
-        var j = this.proverbArray[i];
-        this.proverbArray.splice(i, 1);
-        return this.proverbs.list[j];
+        var i = Math.floor(Math.random() * this.levelProgress.length);
+        var j = this.levelProgress[i];
+        this.levelProgress.splice(i, 1);
+        return j;
+    };
+    Levels.prototype.switchLevel = function () {
+        this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
+        this.levelSprite = this.levels[this.currentLevel].sprite;
+        this.switchProverb();
     };
     return Levels;
 }());
-var Life = (function () {
+var Life = (function (_super) {
+    __extends(Life, _super);
     function Life(game) {
-        this.width = 50;
-        this.height = 50;
-        this.alive = true;
-        this.game = game;
-        this.hspeed = this.game.objSpeed;
-        this.x = this.game.canvasWidth;
-        this.y = 400;
+        var _this = _super.call(this, game) || this;
+        _this.game = game;
+        _this.hspeed = _this.game.objSpeed;
+        _this.x = _this.game.canvasWidth;
+        _this.y = _this.game.ground;
+        _this.width = 63;
+        _this.height = 63;
+        _this.Image = document.getElementById('life');
+        return _this;
     }
     Life.prototype.update = function () {
         this.hspeed = this.game.objSpeed;
@@ -401,21 +609,23 @@ var Life = (function () {
             this.alive = false;
             this.game.lifeCount++;
         }
-        if (this.x < 0 - this.width) {
-            this.alive = false;
-        }
-        this.x -= this.hspeed;
         this.game.ctx.fillStyle = "#00FFFF";
-        this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
+        _super.prototype.update.call(this);
     };
     return Life;
-}());
+}(basicObject));
 var Player = (function () {
     function Player(game) {
         var _this = this;
-        this.playerImage = document.getElementById('player');
-        this.width = 150;
-        this.height = 200;
+        this.standing = document.getElementById('raccoon');
+        this.walking = document.getElementById('raccoonwalk');
+        this.walking2 = document.getElementById('raccoonwalk2');
+        this.jump = document.getElementById('raccoonjump');
+        this.duck = document.getElementById('raccoonduck');
+        this.playerImage = this.standing;
+        this.animationTimer = 20;
+        this.width = 153;
+        this.height = 153;
         this.x = 15;
         this.jumping = false;
         this.vSpeed = 0;
@@ -429,6 +639,10 @@ var Player = (function () {
         this.jumpKey = 32;
         this.duckKey = 40;
         this.ducking = false;
+        this.vulnerable = true;
+        this.vulnerableCD = 120;
+        this.currentVulnerableCD = this.vulnerableCD;
+        this.blinkTimer = 30;
         this.game = game;
         this.y = this.game.ground - this.height;
         this.ground = this.game.ground;
@@ -438,6 +652,43 @@ var Player = (function () {
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
     }
     Player.prototype.update = function () {
+        if (this.animationTimer > 0) {
+            this.animationTimer--;
+        }
+        else {
+            this.animationTimer = 20;
+        }
+        if (this.animationTimer < 10) {
+            this.playerImage = this.walking;
+        }
+        else {
+            this.playerImage = this.walking2;
+        }
+        if (this.game.objSpeed == 0) {
+            this.playerImage = this.standing;
+        }
+        if (!this.vulnerable) {
+            this.currentVulnerableCD--;
+            if (this.blinkTimer > 0) {
+                this.blinkTimer--;
+                if (this.blinkTimer < 15) {
+                    this.x = 15;
+                }
+                else {
+                    this.x = -500;
+                }
+            }
+            else {
+                this.blinkTimer = 30;
+            }
+        }
+        else {
+            this.x = 15;
+        }
+        if (this.currentVulnerableCD < 1) {
+            this.vulnerable = true;
+            this.currentVulnerableCD = this.vulnerableCD;
+        }
         if (this.y + this.height == this.ground)
             this.grounded = true;
         if (this.grounded) {
@@ -456,6 +707,7 @@ var Player = (function () {
             this.vSpeed += this.acceleration;
             if (this.vSpeed > this.jumpSpeed)
                 this.vSpeed = this.jumpSpeed;
+            this.playerImage = this.jump;
         }
         if (!this.jumping && !this.grounded) {
             if (this.vSpeed < 10 && this.vSpeed > -10)
@@ -469,13 +721,19 @@ var Player = (function () {
         if (this.y > this.ground - this.height) {
             this.y = this.ground - this.height;
         }
+        if (this.jumping) {
+            this.playerImage = this.duck;
+        }
+        if (this.ducking) {
+            this.playerImage = this.duck;
+        }
         this.game.ctx.fillStyle = "black";
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
         this.game.ctx.drawImage(this.playerImage, this.x, this.y, this.width, this.height);
     };
     Player.prototype.onKeyDown = function (e) {
         if (e.keyCode == this.jumpKey) {
-            if (this.game.dead || this.game.currentLevel == 0) {
+            if (this.game.dead || this.game.levelObject.currentLevel == 0) {
                 this.game.levelObject.restart();
             }
             else if (!this.ducking) {
@@ -484,7 +742,7 @@ var Player = (function () {
                 this.sound.play();
             }
         }
-        if (!this.game.dead && this.game.currentLevel != 0) {
+        if (!this.game.dead && this.game.levelObject.currentLevel != 0) {
             if (e.keyCode == this.duckKey && !this.ducking && this.grounded) {
                 this.height /= 2;
                 this.y += this.height;
@@ -509,24 +767,84 @@ var Proverbs = (function () {
     function Proverbs() {
         this.list = [
             {
+                string: "",
+                correct: ["appel"],
+                incorrect: ["banaan"]
+            },
+            {
+                string: "Als er één ... over de dam is, volgen er meer",
+                correct: ["schaap"],
+                incorrect: ["geit"]
+            },
+            {
+                string: "Er als de ... bij zijn",
+                correct: ["kip"],
+                incorrect: ["koe"]
+            },
+            {
+                string: "Over ... en ... praten",
+                correct: ["koe", "koegezicht"],
+                incorrect: ["bloem", "bij"]
+            },
+            {
                 string: "De .. valt niet ver van de boom",
                 correct: ["appel"],
                 incorrect: ["banaan"]
             },
             {
-                string: "De ... in de pot vinden",
-                correct: ["appel"],
-                incorrect: ["banaan"]
+                string: "De ... uit de ... kijken",
+                correct: ["kat", "boom"],
+                incorrect: ["kip", "hamster"]
             },
             {
-                string: "Zo sluw als een ...",
-                correct: ["appel"],
-                incorrect: ["banaan"]
+                string: "... bijten niet",
+                correct: ["hond"],
+                incorrect: ["kat"]
+            },
+            {
+                string: "twee ... in één ... slaan ",
+                correct: ["vlieg", "klap"],
+                incorrect: ["mier", "vuist"]
+            },
+            {
+                string: "De ... in de pot vinden",
+                correct: ["hond"],
+                incorrect: ["kat"]
+            },
+            {
+                string: "als de ... van huis is, dansen de ... op tafel",
+                correct: ["kat", "muis"],
+                incorrect: ["hond", "rat"]
             },
             {
                 string: "Als een ... in de val",
-                correct: ["appel"],
-                incorrect: ["banaan"]
+                correct: ["rat"],
+                incorrect: ["muis"]
+            },
+            {
+                string: "...-tranen huilen",
+                correct: ["krokodil"],
+                incorrect: ["dino"]
+            },
+            {
+                string: "Nu komt de ... uit de mouw",
+                correct: ["aap"],
+                incorrect: ["muis"]
+            },
+            {
+                string: "Men moet de huid niet verkopen voor de ... geschoten is",
+                correct: ["beer"],
+                incorrect: ["das"]
+            },
+            {
+                string: "Hij is zo sterk als een ...",
+                correct: ["beer"],
+                incorrect: ["leeuw"]
+            },
+            {
+                string: "Zo sluw als een ...",
+                correct: ["vos"],
+                incorrect: ["vis"]
             },
         ];
     }
@@ -545,10 +863,11 @@ var Test = (function () {
 }());
 var Word = (function () {
     function Word(game, index, fake) {
-        this.width = 50;
-        this.height = 50;
+        this.width = 53;
+        this.height = 53;
         this.fake = false;
         this.alive = true;
+        this.Image = document.getElementById('appel');
         this.game = game;
         this.x = this.game.canvasWidth;
         this.y = this.game.ground - this.height - 250;
@@ -556,10 +875,10 @@ var Word = (function () {
         this.fake = fake;
         this.index = index;
         if (this.fake) {
-            this.name = this.game.levelObject.currentProverb.incorrect[index];
+            this.Image = document.getElementById(this.game.levelObject.proverbs.list[this.game.levelObject.currentProverb].incorrect[index]);
         }
         else {
-            this.name = this.game.levelObject.currentProverb.correct[index];
+            this.Image = document.getElementById(this.game.levelObject.proverbProgress[index]);
         }
     }
     Word.prototype.update = function () {
@@ -567,10 +886,14 @@ var Word = (function () {
         if (this.game.collision(this)) {
             this.alive = false;
             if (!this.fake) {
-                this.game.levelObject.currentProverb.correct.splice(this.index, 1);
-                console.log(this.game.levelObject.currentProverb.correct.length);
+                this.game.levelObject.proverbProgress.splice(this.index, 1);
+                this.game.score += 1000;
             }
             else {
+                this.game.score -= 1000;
+                if (this.game.score < 0) {
+                    this.game.score = 0;
+                }
             }
         }
         if (this.x < 0 - this.width) {
@@ -582,6 +905,7 @@ var Word = (function () {
         else
             this.game.ctx.fillStyle = "green";
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height);
     };
     return Word;
 }());

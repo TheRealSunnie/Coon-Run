@@ -7,7 +7,7 @@ class basicObject {
     public alive:boolean = true
     protected hspeed:number = 0
     protected game:Game
-    protected Image: HTMLImageElement = <HTMLImageElement>document.getElementById('bin')
+    protected Image: HTMLImageElement = <HTMLImageElement>document.getElementById('bin1')
 
     constructor(game:Game) {
         this.game = game

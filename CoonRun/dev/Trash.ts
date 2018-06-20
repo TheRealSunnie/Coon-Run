@@ -1,32 +1,29 @@
-class Trash {
+/// <reference path="basicObject.ts"/>
 
-    public width:number
-    public height:number
-    public x:number
-    public y:number
-    private canvasWidth:number
-    public hspeed:number
-    public active:boolean
+class Trash extends basicObject {
 
-    constructor(ground:number, canvasWidth:number, hspeed:number) {
-        console.log("hier komt een prullebakkie")
-        this.width = 50
-        this.height = 50
-        this.canvasWidth = canvasWidth
-        this.x = canvasWidth
-        this.y = ground-this.height
-        this.hspeed = hspeed
-        this.active = false
+    constructor (game:Game) { // Get game, ground height, canvas width, moving speed and type
+        super(game)
+        this.game = game
+        this.hspeed = this.game.objSpeed
+        this.x = this.game.canvasWidth
+        this.y = this.game.ground
+        this.width = 63
+        this.height = 63
+        this.Image = <HTMLImageElement>document.getElementById('peel')
     }
 
     update():void {
-        if (!this.active) {
-            this.x = this.canvasWidth
-        } else {
-            this.x -= this.hspeed
+        this.hspeed = this.game.objSpeed
+        // If there is a collision toggle the player state
+        if (this.game.collision(this)) { 
+            this.alive = false
+            this.game.score += 100
+
         }
-        if (this.x < 0-this.width) {
-            this.active = false
-        }
+
+        // Draw
+        this.game.ctx.fillStyle = "#00FFFF"  
+        super.update()
     }
 }

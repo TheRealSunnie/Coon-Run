@@ -2,7 +2,7 @@ class Spawner {
 
     game:Game
     public bins:Array<Bin> = [];
-    public binChance = 0.03 // Chance of bin spawning
+    public binChance = 0.0 // Chance of bin spawning
     public canSpawnBin:boolean = false
     public binSpawnCD:number = 60
     public single = 0
@@ -15,7 +15,7 @@ class Spawner {
     public wordSpawnCD:number = 300
 
     public clouds:Array<Cloud> = [];
-    public cloudChance = 0.05
+    public cloudChance = 0.0
     public canSpawnCloud:boolean = false
     public cloudSpawnCD:number = 60
   
@@ -30,7 +30,7 @@ class Spawner {
     }
 
     update():void{
-        if (!this.game.dead && this.game.currentLevel != 0) {
+        if (!this.game.dead && this.game.levelObject.currentLevel != 0) {
             // Countdown for spawning
             if (this.binSpawnCD > 0 && !this.canSpawnBin) {
                 this.binSpawnCD--
@@ -58,15 +58,15 @@ class Spawner {
                 this.wordSpawnCD = 150
                 this.canSpawnWord = true
             }
-            if (Math.random() < this.wordChance && this.canSpawnWord) {
+            if (Math.random() < this.wordChance && this.canSpawnWord && this.game.levelObject.currentLevel != 7 && !this.game.levelObject.levelBreak && !this.game.levelObject.levels[this.game.levelObject.currentLevel].night) {
                 let fake:boolean
                 let name:number
-                if (Math.random()>.9) {
+                if (Math.random()>.5) {
                     fake = true
-                    name = Math.floor(Math.random() * this.game.levelObject.currentProverb.incorrect.length)
+                    name = Math.floor(Math.random() * this.game.levelObject.proverbs.list[this.game.levelObject.currentProverb].incorrect.length)
                 } else {
                     fake = false
-                    name = Math.floor(Math.random() * this.game.levelObject.currentProverb.correct.length)
+                    name = Math.floor(Math.random() * this.game.levelObject.proverbProgress.length)
                 }
                 // New word
                 this.words.push(new Word(this.game, name, fake))
@@ -147,15 +147,5 @@ class Spawner {
             this.lifes.splice(parseInt(i), 1)
         }
 
-        if (this.game.lifeCount < 1 && !this.game.dead) {
-            this.game.dead = true
-            console.log("game over")
-        }
-        if (this.game.dead) {
-            this.game.levelObject.switch(0)
-        }
-        if (this.game.score < 0) {
-            this.game.score = 0
-        }
     }
 }

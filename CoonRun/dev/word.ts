@@ -1,15 +1,16 @@
 class Word {
 
-    public width:number = 50
-    public height:number = 50
+    public width:number = 53
+    public height:number = 53
     public x:number
     public y:number
     public hspeed:number
     private game:Game
     private index:number
-    public name:string
     public fake:boolean = false
     public alive:boolean = true
+
+    private Image: HTMLImageElement = <HTMLImageElement>document.getElementById('appel')
 
     constructor (game:Game, index:number, fake:boolean) { 
         this.game = game
@@ -19,9 +20,9 @@ class Word {
         this.fake = fake
         this.index = index
         if (this.fake) {
-            this.name = this.game.levelObject.currentProverb.incorrect[index]
+            this.Image = <HTMLImageElement>document.getElementById(this.game.levelObject.proverbs.list[this.game.levelObject.currentProverb].incorrect[index])
         } else {
-            this.name = this.game.levelObject.currentProverb.correct[index]
+            this.Image = <HTMLImageElement>document.getElementById(this.game.levelObject.proverbProgress[index])
         }
     }
 
@@ -30,10 +31,14 @@ class Word {
         if (this.game.collision(this)) { 
             this.alive = false
             if(!this.fake) { 
-                this.game.levelObject.currentProverb.correct.splice(this.index, 1)
-                console.log(this.game.levelObject.currentProverb.correct.length);
+                this.game.levelObject.proverbProgress.splice(this.index, 1)  
+                this.game.score += 1000  
             } else {
                 // Loses points
+                this.game.score -= 1000  
+                if (this.game.score < 0) {
+                    this.game.score = 0
+                }
             }
         }
         if (this.x < 0-this.width) { 
@@ -44,5 +49,6 @@ class Word {
         // Draw
         if (this.fake) this.game.ctx.fillStyle = "red"; else this.game.ctx.fillStyle = "green"
         this.game.ctx.fillRect(this.x, this.y, this.width, this.height)
+        this.game.ctx.drawImage(this.Image, this.x, this.y, this.width, this.height)
     }
 }

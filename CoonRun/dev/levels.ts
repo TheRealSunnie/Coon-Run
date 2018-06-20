@@ -2,94 +2,224 @@ class Levels {
 
     private game:Game
     public proverbs:Proverbs = new Proverbs()
-    private proverbArray:Array<number> = []
-    public currentProverb:{string: string, correct: string[], incorrect: string[]} = {string:"", correct:[""], incorrect:[""]}
-    public currentString:string = ""
+    public levels:{level:number, sprite:HTMLImageElement, maxSpeed:number, acceleration:number, proverbArray:Array<number>, bgArray:Array<number>, night:boolean}[]
 
-    private maxSpeed:number = 0
-    private acceleration:number = 0.001
-    private maxLevel:number = 5
+    public currentLevel:number = 0
+    public currentProverb:number = 0
+
+    private levelProgress:Array<number>
+    public proverbProgress:Array<string>
+    public currentString:string
+ 
+    private maxLevel:number
+
+    public levelSprite:HTMLImageElement
+
+    private levelCountdown:number = 300
+    public levelBreak:boolean = false
+
+    private nightOver:boolean = false
+    private nightCountdown:number = 600
 
     constructor(game:Game) {
         this.game = game
-        this.switch(this.game.currentLevel)
+
+        this.levels = [
+            {
+                level: 0,
+                sprite: <HTMLImageElement>document.getElementById('level1'),
+
+                maxSpeed: 0,
+                acceleration: 0,
+
+                // Bin chances
+
+                proverbArray: [0],
+                bgArray: [0,1],
+                night: false
+            },
+            {
+                level: 1,
+                sprite: <HTMLImageElement>document.getElementById('level1'),
+
+                maxSpeed: 13,
+                acceleration: 0.001,
+                // Bin chances
+                proverbArray: [1,2,3,4],
+                bgArray: [2,3,4],
+                night: false
+            },
+            {
+                level: 2,
+                sprite: <HTMLImageElement>document.getElementById('level0'),
+
+                maxSpeed: 15,
+                acceleration: 0.001,
+                // Bin chances
+                proverbArray: [0],
+                bgArray: [0,1],
+                night: true
+            },
+            {
+                level: 3,
+                sprite: <HTMLImageElement>document.getElementById('level2'),
+
+                maxSpeed: 15,
+                acceleration: 0.001,
+                // Bin chances
+                proverbArray: [5,6,7,8,9,10],
+                bgArray: [5,6],
+                night: false
+            },
+            {
+                level: 4,
+                sprite: <HTMLImageElement>document.getElementById('level0'),
+
+                maxSpeed: 15,
+                acceleration: 0.001,
+                // Bin chances
+                proverbArray: [0],
+                bgArray: [0,1],
+                night: true
+            },
+            {
+                level: 5,
+                sprite: <HTMLImageElement>document.getElementById('level3'),
+
+                maxSpeed: 15,
+                acceleration: 0.001,
+                // Bin chances
+                proverbArray: [11,12,13,14,15],
+                bgArray: [7,8,9],
+                night: false
+            },
+            {
+                level: 6,
+                sprite: <HTMLImageElement>document.getElementById('level0'),
+
+                maxSpeed: 15,
+                acceleration: 0.001,
+                // Bin chances
+                proverbArray: [0],
+                bgArray: [0,1],
+                night: true
+            },
+            {
+                level: 7,
+                sprite: <HTMLImageElement>document.getElementById('level4'),
+
+                maxSpeed: 15,
+                acceleration: 0.001,
+                // Bin chances
+                proverbArray: [0],
+                bgArray: [10,11],
+                night: false
+            },
+            
+
+        ]
+
+        this.maxLevel = this.levels.length-1
+        this.levelSprite = this.levels[this.currentLevel].sprite
+
+        this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
+        this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice()
+        this.currentString = this.proverbs.list[this.currentProverb].string
     }
 
     update() {
-        if (this.game.currentLevel > this.maxLevel) this.game.currentLevel = this.maxLevel
-        // Control speed
-        this.game.objSpeed += this.acceleration
-        if(this.game.objSpeed > this.maxSpeed) this.game.objSpeed = this.maxSpeed
-
-        let correctIsZero = (this.currentProverb.correct.length == 0)
-        let proverbIsZero = (this.proverbArray.length == 0)
+        let lvlReady = (this.levelProgress.length == 0)
+        let proverbReady = (this.proverbProgress.length == 0) 
         
-        if (correctIsZero && proverbIsZero) {
-            this.game.currentLevel++
-            if (this.game.currentLevel > this.maxLevel) this.game.currentLevel = this.maxLevel
-      
-            this.switch(this.game.currentLevel)
-        } else if(correctIsZero) {
+        if ((proverbReady && lvlReady) || this.nightOver) {
+            
+            this.currentProverb = 0
+            this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice()
+            this.currentString = this.proverbs.list[this.currentProverb].string
+            if (this.nightOver) {
+                console.log("night over");
+                this.nightOver = false
+                if (this.currentLevel != this.maxLevel) {
+                    this.currentLevel++
+                }
+                this.switchLevel()
+            } else {
+                this.levelBreak = true
+            }
+            
+        } else if (proverbReady) {
             this.switchProverb()
         }
-        
-    }
 
-    // This should be all the levels
-    // Change obj speed, sw collection, active sw pickups, spawnchances, day/night, timers
-    switch(level:number):void {
-        
-        switch (level) {
-            
-            case 0:
-                this.maxSpeed = 0
-                this.proverbArray = [0]
-                this.currentProverb = {string:"", correct:[], incorrect:[]}
-                this.currentString = this.currentProverb.string
-                break;
-            case 1:
-                this.maxSpeed = 13
-                this.proverbArray = [0]
-                break;
-            case 2:
-                this.maxSpeed = 15
-                this.proverbArray = [1]
-                break;
-            case 3:
-                this.maxSpeed = 17
-                this.proverbArray = [2]
-                break;
-            case 4:
-                this.maxSpeed = 20
-                this.proverbArray = [3]
-                break;
-            case 5:
-                this.maxSpeed = 22
-                this.proverbArray = [0]
-                break;
+        if (this.levelBreak) {
+            if (this.levelCountdown > 0) {
+                this.levelCountdown--
+            }
+
+            if (this.levelCountdown < 1) {
+                // Switches level
+                if (this.currentLevel != this.maxLevel) {
+                    this.currentLevel++
+                }
+                this.switchLevel()
+                this.levelCountdown = 300
+                this.levelBreak = false
+            }
         }
-        if (this.game.currentLevel != 0) this.switchProverb()
+
+        if (this.levels[this.currentLevel].night) {
+            if (this.nightCountdown > 0) {
+                this.nightCountdown--
+            }
+
+            if (this.nightCountdown < 1) {
+                this.nightOver = true
+                this.nightCountdown = 600
+            }
+        }
+
+        if (this.game.dead) {
+            this.currentLevel = 0
+        }
+
+        // Control speed
+        this.game.objSpeed += this.levels[this.currentLevel].acceleration
+        if(this.game.objSpeed > this.levels[this.currentLevel].maxSpeed) this.game.objSpeed = this.levels[this.currentLevel].maxSpeed
         
     }
 
-    switchProverb() {
-        this.currentProverb = this.random()
-        this.currentString = this.currentProverb.string
-    }
-
+    // Resets the game and the required values
     restart() {
+        this.currentLevel = 1
+        // Switches level
+        this.switchLevel()
+
+        // Reset required game values
         this.game.dead = false
-        this.game.lifeCount = this.game.maxLifes
+        this.game.lifeCount = this.game.startingLifes
         this.game.objSpeed = this.game.startObjSpeed
         this.game.score = 0
-        this.game.currentLevel = 1
-        this.switch(this.game.currentLevel)
     }
 
-    random():any {
-        let i:number = Math.floor(Math.random() * this.proverbArray.length)
-        let j:number = this.proverbArray[i]
-        this.proverbArray.splice(i,1)
-        return this.proverbs.list[j]
+    // Gets the random proverb and resets the proverbprogress with a new correct array and updates the string
+    switchProverb():void {
+        this.currentProverb = this.random()
+        this.proverbProgress = this.proverbs.list[this.currentProverb].correct.slice()
+        this.currentString = this.proverbs.list[this.currentProverb].string    
     }
+
+    // Gets a random value from a level's proverb array and return an index for the proverblist
+    random():any {
+        let i = Math.floor(Math.random() * this.levelProgress.length)
+        let j = this.levelProgress[i]
+        this.levelProgress.splice(i,1)
+
+        return j
+     }
+
+     switchLevel():void {
+        this.levelProgress = this.levels[this.currentLevel].proverbArray.slice();
+        this.levelSprite = this.levels[this.currentLevel].sprite
+        this.switchProverb()
+     }
 }
