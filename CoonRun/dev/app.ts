@@ -15,6 +15,8 @@
     public objSpeed:number = this.startObjSpeed
     public bgSpeed:number = 1
     public cloudSpeed:number = .5
+    private sun:HTMLImageElement = <HTMLImageElement>document.getElementById('sun')
+    private moon:HTMLImageElement = <HTMLImageElement>document.getElementById('moon')
 
     constructor() { // Load in all the stuff
         //console.log("new game created!")
@@ -29,7 +31,11 @@
         // Draw setup
         this.ctx.fillStyle = "#D3D3D3" // Color
         this.ctx.drawImage(this.levelObject.levelSprite, 0, 0, 1280, 720) // Clears canvas
-        this.ctx.drawImage(this.levelObject.levelSprite, 0, 0, 1280, 720) // Clears canvas
+        if (!this.levelObject.levels[this.levelObject.currentLevel].night) {
+            this.ctx.drawImage(this.sun, 150, 50, 150, 150)
+        } else {
+            this.ctx.drawImage(this.moon, 150, 50, 150, 150)
+        }
 
         // Update stuff
         this.Spawner.update()

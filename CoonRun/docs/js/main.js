@@ -268,10 +268,17 @@ var Game = (function () {
         this.objSpeed = this.startObjSpeed;
         this.bgSpeed = 1;
         this.cloudSpeed = .5;
+        this.sun = document.getElementById('sun');
+        this.moon = document.getElementById('moon');
         this.gameLoop = function () {
             _this.ctx.fillStyle = "#D3D3D3";
             _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
-            _this.ctx.drawImage(_this.levelObject.levelSprite, 0, 0, 1280, 720);
+            if (!_this.levelObject.levels[_this.levelObject.currentLevel].night) {
+                _this.ctx.drawImage(_this.sun, 150, 50, 150, 150);
+            }
+            else {
+                _this.ctx.drawImage(_this.moon, 150, 50, 150, 150);
+            }
             _this.Spawner.update();
             _this.levelObject.update();
             _this.player.update();
