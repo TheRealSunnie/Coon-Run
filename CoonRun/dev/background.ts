@@ -17,38 +17,38 @@ class BgObject extends basicObject {
             {
                 level: 0,
                 sprite: <HTMLImageElement>document.getElementById('lantern'),
-                width: 50,
-                height: 240
+                width: 31,
+                height: 150
             },
             {
                 level: 0,
                 sprite: <HTMLImageElement>document.getElementById('carrots'),
-                width: 200,
-                height: 130
+                width: 123,
+                height: 80
             },
             {
                 level: 0,
                 sprite: <HTMLImageElement>document.getElementById('corn'),
-                width: 200,
-                height: 230
+                width: 100,
+                height: 87
             },
             {
                 level: 0,
                 sprite: <HTMLImageElement>document.getElementById('flower'),
-                width: 210,
-                height: 170
+                width: 124,
+                height: 100
             },
             {
                 level: 0,
                 sprite: <HTMLImageElement>document.getElementById('bookshelf'),
-                width: 150,
-                height: 300
+                width: 47,
+                height: 150
             },
             {
                 level: 0,
                 sprite: <HTMLImageElement>document.getElementById('chouch'),
-                width: 300,
-                height: 150
+                width: 130,
+                height: 80
             },
             {
                 level: 0,
@@ -59,8 +59,8 @@ class BgObject extends basicObject {
             {
                 level: 0,
                 sprite: <HTMLImageElement>document.getElementById('zebra'),
-                width: 256,
-                height: 144
+                width: 250,
+                height: 141
             },
             {
                 level: 0,
@@ -98,7 +98,7 @@ class BgObject extends basicObject {
     update():void {
 
         // Draw
-        this.game.ctx.fillStyle = "white"
+        //this.game.ctx.fillStyle = "white"
         super.update()
     }
 }
