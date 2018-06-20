@@ -893,8 +893,6 @@ var Proverbs = (function () {
     }
     return Proverbs;
 }());
-adjgkl;
-as;
 var Test = (function () {
     function Test() {
         this.mijnvalue = true;
