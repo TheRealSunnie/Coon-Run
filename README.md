@@ -1,2 +1,4 @@
 # Coon-Run
-Jump with left-mousekey
+Jump with SPACE
+
+
